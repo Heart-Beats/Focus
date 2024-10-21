@@ -7,9 +7,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.ihewro.focus.R;
 import com.ihewro.focus.adapter.AuthListAdapter;
 import com.ihewro.focus.bean.Auth;
