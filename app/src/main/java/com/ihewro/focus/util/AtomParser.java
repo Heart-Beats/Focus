@@ -1,5 +1,8 @@
 package com.ihewro.focus.util;
 
+import static com.ihewro.focus.util.FeedParser.readTagByTagName;
+import static com.ihewro.focus.util.FeedParser.skip;
+
 import com.blankj.ALog;
 import com.ihewro.focus.bean.Feed;
 import com.ihewro.focus.bean.FeedItem;
@@ -13,9 +16,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.ihewro.focus.util.FeedParser.readTagByTagName;
-import static com.ihewro.focus.util.FeedParser.skip;
 
 /**
  * <pre>
@@ -42,6 +42,7 @@ public class AtomParser {
     private static final String SUMMARY = "summary";
     private static final String CONTENT = "content";
     private static final String PUBLISHED = "published";
+    private static final String ID = "id";  // 唯一标识符，表示条目的全局唯一标识
 
 
     /**
@@ -119,6 +120,7 @@ public class AtomParser {
         String updateDate = null;
         String description = null;
         String content = null;
+        String id = null;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) {
                 continue;
@@ -143,14 +145,21 @@ public class AtomParser {
                 case CONTENT:
                     content = readContent(parser);
                     break;
+                case ID:
+                    id = readID(parser);
+                    break;
                 default:
                     skip(parser);
                     break;
             }
         }
-        ALog.d("item名称：" + title + "时间为" + pubDate + "地址为" + link);
         pubDate = pubDate == null ? updateDate : pubDate;
-        FeedItem feedItem = new FeedItem(title, DateUtil.date2TimeStamp(pubDate), description, content, link, false, false);
+
+        if (StringUtil.trim(id).equals("")) {// link 与guid一定有一个是存在或者都存在，优先使用link的值
+            id = link;
+        }
+
+        FeedItem feedItem = new FeedItem(title, DateUtil.date2TimeStamp(pubDate), description, content, link, id, false, false);
         if (pubDate == null) {
             feedItem.setNotHaveExtractTime(true);
         }
@@ -237,6 +246,10 @@ public class AtomParser {
 
     private static String readContent(XmlPullParser parser) throws IOException, XmlPullParserException {
         return readTagByTagName(parser, CONTENT);
+    }
+
+    private static String readID(XmlPullParser parser) throws IOException, XmlPullParserException {
+        return readTagByTagName(parser, ID);
     }
 
     private static Long readLastBuildDate(XmlPullParser parser) throws IOException, XmlPullParserException {

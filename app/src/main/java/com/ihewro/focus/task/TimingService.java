@@ -15,6 +15,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.blankj.ALog;
 import com.ihewro.focus.GlobalConfig;
+import com.ihewro.focus.MyApplication;
 import com.ihewro.focus.R;
 import com.ihewro.focus.activity.MainActivity;
 import com.ihewro.focus.bean.Feed;
@@ -31,6 +32,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import es.dmoral.toasty.Toasty;
 
 public class TimingService extends Service {
 
@@ -124,6 +127,11 @@ public class TimingService extends Service {
                             public void onSuccess(List<FeedItem> feedItemList) {
                                 //主线程
                                 updateUI();
+                            }
+
+                            @Override
+                            public void onFailure(String errorMsg) {
+                                Toasty.error(MyApplication.getContext(), errorMsg).show();
                             }
                         });
 

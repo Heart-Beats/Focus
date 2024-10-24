@@ -7,31 +7,25 @@ import com.blankj.ALog;
 import com.ihewro.focus.GlobalConfig;
 import com.ihewro.focus.bean.Feed;
 import com.ihewro.focus.bean.FeedFolder;
-import com.ihewro.focus.bean.FeedItem;
 import com.ihewro.focus.bean.FeedRequest;
-import com.ihewro.focus.bean.FeedRequire;
 import com.ihewro.focus.bean.Message;
 import com.ihewro.focus.bean.UserPreference;
 import com.ihewro.focus.callback.RequestDataCallback;
 import com.ihewro.focus.http.HttpInterface;
-import com.ihewro.focus.http.HttpUtil;
+import com.ihewro.focus.http.RetrofitManager;
 import com.ihewro.focus.util.DateUtil;
 import com.ihewro.focus.util.FeedParser;
 import com.ihewro.focus.util.StringUtil;
+import com.ihewro.focus.util.ThreadUtil;
 import com.ihewro.focus.util.UIUtil;
 
 import org.litepal.LitePal;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 /**
  * <pre>
@@ -69,22 +63,10 @@ public class RequestFeedListDataTask extends AsyncTask<Feed, Integer, Message> {
         if (flag){
             Feed feed = feeds[0];
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Log.e("多线程任务！！","任务开始"+feed.getUrl()+dateFormat.format(new Date(System.currentTimeMillis())));
+            Log.e("多线程任务！！", "任务开始: " + feed.getUrl() + ", 当前时间" + DateUtil.getNowDateStr());
             String url = feed.getUrl();
 
-            //获取
-            int timeout;
-            int feedTimeout = feed.getTimeout();
             FeedFolder feedFolder = LitePal.find(FeedFolder.class,feed.getFeedFolderId());
-            int feedFolderTimeout = feedFolder.getTimeout();
-
-            timeout = Math.max(feedFolderTimeout,feedTimeout);
-
-            if (timeout == 0){
-                timeout = Feed.DEFAULT_TIMEOUT;//默认值
-            }
-
-            ALog.d("超时时间" + timeout);
             final String originUrl = url;
 
             //判断RSSHUB的源地址，替换成现在的地址
@@ -102,7 +84,7 @@ public class RequestFeedListDataTask extends AsyncTask<Feed, Integer, Message> {
                     }
 
                     url = url.replace(GlobalConfig.rssHub.get(i),replace);
-                    ALog.d("需要ti替换的" + replace + "结果" + url);
+                    ALog.d(originUrl + " 替换自定义源后结果：" + url);
                   break;
                 }
             }
@@ -119,16 +101,9 @@ public class RequestFeedListDataTask extends AsyncTask<Feed, Integer, Message> {
             int pos1 = url.indexOf("/",8);
             if (pos1 == -1){//说明这/是协议头的,比如https://www.ihewro.com
                 url = url + "/";
-                Retrofit retrofit = HttpUtil.getRetrofit("String", url, timeout, timeout, timeout);
-                HttpInterface request = retrofit.create(HttpInterface.class);
-                call = request.getRSSData("");
+                call = RetrofitManager.create(HttpInterface.class).getRSSData(url);
             }else {
-                String with = url.substring(pos1+1);
-                url = url.substring(0,pos1) + "/";
-                ALog.d("根域名" + url + "参数" + with);
-                Retrofit retrofit = HttpUtil.getRetrofit("String", url, timeout, timeout, timeout);
-                HttpInterface request = retrofit.create(HttpInterface.class);
-                call = request.getRSSDataWith(with);
+                call = RetrofitManager.create(HttpInterface.class).getRSSDataWith(url);
             }
 
 
@@ -144,11 +119,15 @@ public class RequestFeedListDataTask extends AsyncTask<Feed, Integer, Message> {
                     feed.save();
                     //处理数据库的时候我们进行同步处理
                     synchronized(this){
-                        Feed feed2 = FeedParser.HandleFeed(feed.getId(),response,FeedParser.parseStr2Feed(response.body(),originUrl));
-                        //feed更新到当前的时间流中。
+                        Feed feed2 = FeedParser.HandleFeed(feed.getId(), response, originUrl);
+                        // feed更新到当前的时间流中
                         if (feed2!=null){
                             return new Message(true,feed2.getFeedItemList());
                         }else {
+                            ALog.d("解析失败");
+
+                            ThreadUtil.INSTANCE.runOnUIThread(() -> callback.onFailure("服务数据解析内容为空"));
+
                             //当前解析的内容为空
                             return new Message(false);
                         }
@@ -163,7 +142,7 @@ public class RequestFeedListDataTask extends AsyncTask<Feed, Integer, Message> {
                         String encode = "UTF-8";//默认编码
 //                        reason = new String(reason.getBytes("ISO-8859-1"),encode);
                     }else {
-                        reason = "无错误报告";
+                        reason = "接口请求失败无错误原因";
                         ALog.d("出问题了！");
                     }
 
@@ -172,24 +151,18 @@ public class RequestFeedListDataTask extends AsyncTask<Feed, Integer, Message> {
                     feed.setErrorGet(true);
                     feed.save();
 
-
-                    try {
-                        ALog.d("请求失败" + response.code() + response.errorBody().string());
-                    } catch (IOException e) {
-                        ALog.d("请求失败");
-                        e.printStackTrace();
-                    }
+                    ALog.d("请求失败 ----> %d : %s ", response.code(), reason);
+                    ThreadUtil.INSTANCE.runOnUIThread(() -> callback.onFailure(reason));
                     return new Message(false);
                 }
             }  catch (IOException e) {
-                ALog.d("请求失败");
-                ALog.d(e.getMessage());
+                ALog.e("请求失败", e);
+                ThreadUtil.INSTANCE.runOnUIThread(() -> callback.onFailure(e.getMessage()));
                 FeedRequest feedRequire = new FeedRequest(feed.getId(),false,0,e.getMessage(),-1, DateUtil.getNowDateRFCInt());
                 feedRequire.save();
 
                 feed.setErrorGet(true);
                 feed.save();
-                e.printStackTrace();
             }
         }
 

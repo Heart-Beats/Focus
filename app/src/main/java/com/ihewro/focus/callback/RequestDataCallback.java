@@ -1,7 +1,6 @@
 package com.ihewro.focus.callback;
 
 import com.ihewro.focus.bean.FeedItem;
-import com.ihewro.focus.bean.Message;
 
 import java.util.List;
 
@@ -17,5 +16,7 @@ import java.util.List;
 public interface RequestDataCallback {
 
     void onSuccess(List<FeedItem> feedItemList);//有网络请求的结束
+
+    void onFailure(String errorMsg);
 
 }

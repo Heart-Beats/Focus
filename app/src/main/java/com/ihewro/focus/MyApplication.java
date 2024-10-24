@@ -1,7 +1,6 @@
 package com.ihewro.focus;
 
 import android.content.Context;
-import android.database.CursorWindow;
 import android.util.Log;
 
 import com.blankj.ALog;
@@ -11,11 +10,6 @@ import com.ihewro.focus.helper.BlockDetectByPrinter;
 import com.ihewro.focus.util.ImageLoaderManager;
 import com.scwang.smartrefresh.header.MaterialHeader;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
-import com.scwang.smartrefresh.layout.api.DefaultRefreshFooterCreator;
-import com.scwang.smartrefresh.layout.api.DefaultRefreshHeaderCreator;
-import com.scwang.smartrefresh.layout.api.RefreshFooter;
-import com.scwang.smartrefresh.layout.api.RefreshHeader;
-import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.constant.SpinnerStyle;
 import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.zxy.recovery.callback.RecoveryCallback;
@@ -23,8 +17,6 @@ import com.zxy.recovery.core.Recovery;
 
 import org.litepal.LitePal;
 import org.litepal.LitePalApplication;
-
-import java.util.List;
 
 import es.dmoral.toasty.Toasty;
 import skin.support.SkinCompatManager;
@@ -47,21 +39,15 @@ public class MyApplication extends LitePalApplication {
 
     static {
         //设置全局的Header构建器
-        SmartRefreshLayout.setDefaultRefreshHeaderCreator(new DefaultRefreshHeaderCreator() {
-            @Override
-            public RefreshHeader createRefreshHeader(Context context, RefreshLayout layout) {
-                layout.setPrimaryColorsId(R.color.colorAccent, android.R.color.white);//全局设置主题颜色
-                return new MaterialHeader(
-                        context);//.setTimeFormat(new DynamicTimeFormat("更新于 %s"));//指定为经典Header，默认是 贝塞尔雷达Header
-            }
+        SmartRefreshLayout.setDefaultRefreshHeaderCreator((context, layout) -> {
+            layout.setPrimaryColorsId(R.color.colorAccent, android.R.color.white);// 全局设置主题颜色
+            return new MaterialHeader(
+                    context);//.setTimeFormat(new DynamicTimeFormat("更新于 %s"));//指定为经典Header，默认是 贝塞尔雷达Header
         });
         //设置全局的Footer构建器
-        SmartRefreshLayout.setDefaultRefreshFooterCreator(new DefaultRefreshFooterCreator() {
-            @Override
-            public RefreshFooter createRefreshFooter(Context context, RefreshLayout layout) {
-                //指定为经典Footer，默认是 BallPulseFooter
-                return new ClassicsFooter(context).setSpinnerStyle(SpinnerStyle.Scale);
-            }
+        SmartRefreshLayout.setDefaultRefreshFooterCreator((context, layout) -> {
+            // 指定为经典Footer，默认是 BallPulseFooter
+            return new ClassicsFooter(context).setSpinnerStyle(SpinnerStyle.Scale);
         });
     }
 
@@ -78,8 +64,8 @@ public class MyApplication extends LitePalApplication {
                 .setLog2FileSwitch(false)// 打印 log 时是否存到文件的开关，默认关
                 .setDir("")// 当自定义路径为空时，写入应用的 /cache/log/ 目录中
                 .setFilePrefix("")// 当文件前缀为空时，默认为 "alog"，即写入文件为 "alog-MM-dd.txt"
-                .setBorderSwitch(true)// 输出日志是否带边框开关，默认开
-                .setSingleTagSwitch(true)// 一条日志仅输出一条，默认开，为美化 AS 3.1 的 Logcat
+                .setBorderSwitch(false)// 输出日志是否带边框开关，默认开
+                .setSingleTagSwitch(false)// 一条日志仅输出一条，默认开，为美化 AS 3.1 的 Logcat
                 .setConsoleFilter(ALog.V)// log 的控制台过滤器，和 logcat 过滤器同理，默认 Verbose
                 .setFileFilter(ALog.V)// log 文件过滤器，和 logcat 过滤器同理，默认 Verbose
                 .setStackDeep(1)// log 栈深度，默认为 1

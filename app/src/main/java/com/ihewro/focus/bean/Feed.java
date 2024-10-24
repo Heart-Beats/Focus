@@ -73,15 +73,16 @@ public class Feed extends LitePalSupport {
 
     @Override
     public String toString() {
-        return "feedId" + id + "\n"
-                + "name" + name + '\n'
-                + "url" + url +"\n"
-                + "文章数目" + feedItemList.size()+"\n"
-                + feedItemList.toString();
-
+        return "Feed{" +
+                "feedId=" + id +
+                ", name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                ", 文章数目 ='" + feedItemList.size() + '\'' +
+                ", feedItemList=" + feedItemList +
+                '}';
     }
 
-    public Feed(String name, String desc, String url, String link, String websiteName, String websiteCategoryName, Long time, int feedFolderId, String type,  int timeout, boolean errorGet) {
+    public Feed(String name, String desc, String url, String link, String websiteName, String websiteCategoryName, Long time, int feedFolderId, String type, int timeout, boolean errorGet) {
         this.name = name;
         this.desc = desc;
         this.url = url;

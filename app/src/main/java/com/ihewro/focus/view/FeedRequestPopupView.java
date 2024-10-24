@@ -1,6 +1,5 @@
 package com.ihewro.focus.view;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -10,32 +9,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.blankj.ALog;
-import com.ihewro.focus.GlobalConfig;
 import com.ihewro.focus.R;
-import com.ihewro.focus.adapter.FeedListAdapter;
 import com.ihewro.focus.adapter.FeedRequestAdapter;
-import com.ihewro.focus.adapter.FeedRequireListAdapter;
-import com.ihewro.focus.bean.Feed;
 import com.ihewro.focus.bean.FeedRequest;
 import com.ihewro.focus.bean.Help;
-import com.ihewro.focus.http.HttpInterface;
-import com.ihewro.focus.http.HttpUtil;
-import com.ihewro.focus.util.UIUtil;
 import com.lxj.xpopup.core.BottomPopupView;
 
 import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import es.dmoral.toasty.Toasty;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
 
 /**
  * <pre>

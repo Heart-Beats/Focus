@@ -1,33 +1,22 @@
 package com.ihewro.focus.util;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.res.Resources;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Build;
-import android.os.Looper;
-import android.support.annotation.ColorInt;
-import android.support.annotation.IntRange;
-import android.support.annotation.Nullable;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-
-import com.blankj.ALog;
-import com.chad.library.adapter.base.BaseQuickAdapter;
-import com.google.common.base.Strings;
-import com.ihewro.focus.GlobalConfig;
-import com.ihewro.focus.MyApplication;
-import com.ihewro.focus.callback.FileOperationCallback;
-import com.mikepenz.materialize.util.UIUtils;
-
 import static java.lang.Character.UnicodeBlock.CJK_COMPATIBILITY_FORMS;
 import static java.lang.Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS;
 import static java.lang.Character.UnicodeBlock.CJK_RADICALS_SUPPLEMENT;
 import static java.lang.Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS;
 import static java.lang.Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A;
 import static java.lang.Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.Looper;
+
+import com.google.common.base.Strings;
+import com.ihewro.focus.GlobalConfig;
+import com.ihewro.focus.MyApplication;
 
 /**
  * <pre>
@@ -108,11 +97,11 @@ public class UIUtil {
     public static void autoBackUpWhenItIsNecessary(){
         //删除autobackup其他的所有文件
         FileUtil.delFolder(GlobalConfig.appDirPath + "database/autobackup/");
-        FileUtil.copyFileToTarget(UIUtil.getContext().getDatabasePath("focus.db").getAbsolutePath(), GlobalConfig.appDirPath + "database/autobackup/" + "auto:" + DateUtil.getNowDateStr() + ".db", new FileOperationCallback() {
-            @Override
-            public void onFinish() {
-                //nothing to do
-            }
+
+        // 冒号 ( :) 是文件系统中不允许的字符，特别是在 Android 的文件路径,这里替换为 "-"
+        String nowDateStr = DateUtil.getNowDateStr().replace(":","-");
+        FileUtil.copyFileToTarget(UIUtil.getContext().getDatabasePath("focus.db").getAbsolutePath(), GlobalConfig.appDirPath + "database/autobackup/" + "auto:" + nowDateStr + ".db", () -> {
+            // nothing to do
         });
     }
 

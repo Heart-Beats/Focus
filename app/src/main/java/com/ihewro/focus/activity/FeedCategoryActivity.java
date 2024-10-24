@@ -1,9 +1,11 @@
 package com.ihewro.focus.activity;
 
+import static com.ihewro.focus.GlobalConfig.serverUrl;
+import static com.ihewro.focus.util.UIUtil.getContext;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -16,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blankj.ALog;
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -26,9 +27,7 @@ import com.ihewro.focus.adapter.BaseViewPagerAdapter;
 import com.ihewro.focus.adapter.FeedCategoryLeftAdapter;
 import com.ihewro.focus.adapter.FeedCategoryRightAdapter;
 import com.ihewro.focus.adapter.FeedListAdapter;
-import com.ihewro.focus.bean.EventMessage;
 import com.ihewro.focus.bean.Feed;
-import com.ihewro.focus.bean.FeedItem;
 import com.ihewro.focus.bean.FeedRequire;
 import com.ihewro.focus.bean.Help;
 import com.ihewro.focus.bean.Website;
@@ -36,13 +35,10 @@ import com.ihewro.focus.bean.WebsiteCategory;
 import com.ihewro.focus.fragemnt.search.SearchWebFeedListFragment;
 import com.ihewro.focus.fragemnt.search.SearchWebListFragment;
 import com.ihewro.focus.http.HttpInterface;
-import com.ihewro.focus.http.HttpUtil;
+import com.ihewro.focus.http.RetrofitManager;
 import com.ihewro.focus.view.RequireListPopupView;
 import com.lxj.xpopup.XPopup;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
-
-import org.greenrobot.eventbus.EventBus;
-import org.litepal.LitePal;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,11 +50,7 @@ import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 import skin.support.utils.SkinPreference;
-
-import static com.ihewro.focus.GlobalConfig.serverUrl;
-import static com.ihewro.focus.util.UIUtil.getContext;
 
 public class FeedCategoryActivity extends BackActivity {
 
@@ -145,9 +137,8 @@ public class FeedCategoryActivity extends BackActivity {
         searchFeedListFragment.showLoading();
         searchWebListFragment.showLoading();
 
-        Retrofit retrofit = HttpUtil.getRetrofit("bean", GlobalConfig.serverUrl, 10, 10, 10);
         //请求网站列表
-        Call<List<Website>> request = retrofit.create(HttpInterface.class).searchWebsiteByName(content);
+        Call<List<Website>> request = RetrofitManager.create(HttpInterface.class).searchWebsiteByName(GlobalConfig.serverUrl + "searchWebsiteByName", content);
 
         request.enqueue(new Callback<List<Website>>() {
             @Override
@@ -162,7 +153,7 @@ public class FeedCategoryActivity extends BackActivity {
         });
 
         //请求feedList
-        Call<List<Feed>> request2= retrofit.create(HttpInterface.class).searchFeedListByName(content);
+        Call<List<Feed>> request2 = RetrofitManager.create(HttpInterface.class).searchFeedListByName(GlobalConfig.serverUrl + "searchFeedListByName", content);
         request2.enqueue(new Callback<List<Feed>>() {
             @Override
             public void onResponse(Call<List<Feed>> call, Response<List<Feed>> response) {
@@ -254,8 +245,7 @@ public class FeedCategoryActivity extends BackActivity {
     }
 
     public void requestLeftData() {
-        Retrofit retrofit = HttpUtil.getRetrofit("bean", serverUrl, 10, 10, 10);
-        Call<List<WebsiteCategory>> request = retrofit.create(HttpInterface.class).getCategoryList();
+        Call<List<WebsiteCategory>> request = RetrofitManager.create(HttpInterface.class).getCategoryList(serverUrl + "webcategory");
         request.enqueue(new Callback<List<WebsiteCategory>>() {
             @Override
             public void onResponse(Call<List<WebsiteCategory>> call, Response<List<WebsiteCategory>> response) {
@@ -279,8 +269,7 @@ public class FeedCategoryActivity extends BackActivity {
     public void requestRightData(String categoryName) {
         rightAdapter.setNewData(null);
         rightAdapter.setEmptyView(R.layout.simple_loading_view, recyclerRight);
-        Retrofit retrofit = HttpUtil.getRetrofit("bean", GlobalConfig.serverUrl, 10, 10, 10);
-        Call<List<Website>> request = retrofit.create(HttpInterface.class).getWebsiteListByCategory(categoryName);
+        Call<List<Website>> request = RetrofitManager.create(HttpInterface.class).getWebsiteListByCategory(GlobalConfig.serverUrl + "weblist", categoryName);
 
         request.enqueue(new Callback<List<Website>>() {
             @Override

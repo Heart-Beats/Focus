@@ -1,10 +1,11 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 28
+    compileSdk 34
     defaultConfig {
         applicationId "com.ihewro.focus"
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion 28
         versionCode 31
         versionName "2.17"
@@ -18,14 +19,25 @@ android {
             // armeabi: 第5代、第6代的ARM处理器，早期的手机用的比较多。
             // x86: 平板、模拟器用得比较多。
             // x86_64: 64位的平板。
-            abiFilters 'arm64-v8a', 'armeabi-v7a'
+            abiFilters 'x86_64', 'arm64-v8a', 'armeabi-v7a'
         }
 
     }
+
+    signingConfigs {
+        debug {
+            storeFile file('../sign_key.jks')
+            storePassword 'android123456'
+            keyAlias 'android'
+            keyPassword 'android123456'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
 
@@ -98,11 +110,13 @@ dependencies {
     implementation 'com.afollestad.material-dialogs:commons:0.9.6.0'
 
     //网络请求
-    implementation 'com.squareup.okhttp3:okhttp:3.12.0'
-    implementation 'com.squareup.retrofit2:retrofit:2.6.1'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.4.1'//打印请求信息
-    implementation 'com.squareup.retrofit2:converter-jackson:2.3.0'
-    implementation 'com.squareup.retrofit2:converter-scalars:2.0.0'
+
+    def retrofit_version = '2.6.1'
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-jackson:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-scalars:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
     //数据库操作
     implementation 'org.litepal.android:java:3.0.0'
@@ -164,13 +178,14 @@ dependencies {
     //pup弹窗
     implementation 'com.lxj:xpopup:1.8.4'
 
+    def skin_version = '3.1.4'
     //多主题
-    implementation 'skin.support:skin-support:3.1.1'                   // skin-support 基础控件支持
-    implementation 'skin.support:skin-support-design:3.1.1'
+    implementation "skin.support:skin-support:$skin_version" // skin-support 基础控件支持
+    implementation "skin.support:skin-support-design:$skin_version"
     // skin-support-design material design 控件支持[可选]
-    implementation 'skin.support:skin-support-cardview:3.1.1'
+    implementation "skin.support:skin-support-cardview:$skin_version"
     // skin-support-cardview CardView 控件支持[可选]
-//    implementation 'skin.support:skin-support-constraint-layout:3.1.1'
+    //    implementation "skin.support:skin-support-constraint-layout:$skin_version"
     // skin-support-constraint-layout ConstraintLayout 控件支持[可选]
 
     //简化运行时申请权限的代码

@@ -9,7 +9,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,14 +16,11 @@ import android.widget.Toast;
 import com.blankj.ALog;
 import com.ihewro.focus.GlobalConfig;
 import com.ihewro.focus.R;
-import com.ihewro.focus.activity.FeedListActivity;
 import com.ihewro.focus.adapter.FeedListAdapter;
-import com.ihewro.focus.adapter.RequireListAdapter;
 import com.ihewro.focus.bean.Feed;
-import com.ihewro.focus.bean.FeedRequire;
 import com.ihewro.focus.bean.Help;
 import com.ihewro.focus.http.HttpInterface;
-import com.ihewro.focus.http.HttpUtil;
+import com.ihewro.focus.http.RetrofitManager;
 import com.ihewro.focus.util.UIUtil;
 import com.lxj.xpopup.core.BottomPopupView;
 
@@ -35,7 +31,6 @@ import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 /**
  * <pre>
@@ -158,9 +153,8 @@ public class FeedListPopView extends BottomPopupView {
         adapter.setNewData(null);
         adapter.setEmptyView(R.layout.simple_loading_view,recyclerView);
 
-        Retrofit retrofit = HttpUtil.getRetrofit("bean", GlobalConfig.serverUrl,10,10,10);
         ALog.d("名称为" + title);
-        Call<List<Feed>> request = retrofit.create(HttpInterface.class).getFeedListByWebsite(title);
+        Call<List<Feed>> request = RetrofitManager.create(HttpInterface.class).getFeedListByWebsite(GlobalConfig.serverUrl + "feedlist", title);
 
         request.enqueue(new Callback<List<Feed>>() {
             @Override

@@ -80,8 +80,8 @@ public class OPMLCreateHelper {
                 appDir.mkdirs();
             }
 
-
-            String name = DateUtil.getNowDateStr();//日期
+            // 冒号 ( :) 是文件系统中不允许的字符，特别是在 Android 的文件路径,这里替换为 "-"
+            String name = DateUtil.getNowDateStr().replace(":","-"); //日期
             String outPutPath = GlobalConfig.appXMLPath+"export"+name+".xml";
             File outFile = new File(outPutPath);
             if (outFile.exists()){

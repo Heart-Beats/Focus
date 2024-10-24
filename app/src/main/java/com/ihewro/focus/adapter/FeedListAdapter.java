@@ -15,13 +15,12 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.ihewro.focus.GlobalConfig;
 import com.ihewro.focus.R;
-import com.ihewro.focus.activity.FeedListActivity;
 import com.ihewro.focus.bean.Feed;
 import com.ihewro.focus.bean.FeedRequire;
 import com.ihewro.focus.bean.Help;
 import com.ihewro.focus.bean.UserPreference;
 import com.ihewro.focus.http.HttpInterface;
-import com.ihewro.focus.http.HttpUtil;
+import com.ihewro.focus.http.RetrofitManager;
 import com.ihewro.focus.util.ImageLoaderManager;
 import com.ihewro.focus.util.RSSUtil;
 import com.ihewro.focus.util.StringUtil;
@@ -37,7 +36,6 @@ import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 /**
  * <pre>
@@ -96,8 +94,9 @@ public class FeedListAdapter extends BaseQuickAdapter<Feed, BaseViewHolder> {
                 .build();
 
         loading.show();
-        Retrofit retrofit = HttpUtil.getRetrofit("bean", GlobalConfig.serverUrl,10,10,10);
-        Call<List<FeedRequire>> request = retrofit.create(HttpInterface.class).getFeedRequireListByWebsite(feed.getIid());
+
+        Call<List<FeedRequire>> request =
+                RetrofitManager.create(HttpInterface.class).getFeedRequireListByWebsite(GlobalConfig.serverUrl + "feedRequireList", feed.getIid());
         request.enqueue(new Callback<List<FeedRequire>>() {
             @SuppressLint("CheckResult")
             @Override

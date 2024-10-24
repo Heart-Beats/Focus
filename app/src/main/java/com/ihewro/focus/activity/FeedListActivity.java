@@ -9,27 +9,17 @@ import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.blankj.ALog;
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.ihewro.focus.GlobalConfig;
 import com.ihewro.focus.R;
 import com.ihewro.focus.adapter.FeedListAdapter;
 import com.ihewro.focus.bean.Feed;
-import com.ihewro.focus.bean.FeedRequire;
-import com.ihewro.focus.bean.Help;
-import com.ihewro.focus.bean.UserPreference;
 import com.ihewro.focus.http.HttpInterface;
-import com.ihewro.focus.http.HttpUtil;
+import com.ihewro.focus.http.RetrofitManager;
 import com.ihewro.focus.util.Constants;
-import com.ihewro.focus.util.RSSUtil;
-import com.ihewro.focus.util.StringUtil;
 import com.ihewro.focus.util.UIUtil;
-import com.ihewro.focus.view.RequireListPopupView;
-import com.lxj.xpopup.XPopup;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
@@ -43,7 +33,6 @@ import es.dmoral.toasty.Toasty;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
 public class FeedListActivity extends BackActivity {
 
@@ -106,9 +95,8 @@ public class FeedListActivity extends BackActivity {
      * 请求一个网站的可订阅列表
      */
     public void requestData(){
-        Retrofit retrofit = HttpUtil.getRetrofit("bean", GlobalConfig.serverUrl,10,10,10);
         ALog.d("名称为" + mName);
-        Call<List<Feed>> request = retrofit.create(HttpInterface.class).getFeedListByWebsite(mName);
+        Call<List<Feed>> request = RetrofitManager.create(HttpInterface.class).getFeedListByWebsite(GlobalConfig.serverUrl + "feedlist", mName);
 
         request.enqueue(new Callback<List<Feed>>() {
             @Override

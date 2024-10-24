@@ -1,5 +1,8 @@
 package com.ihewro.focus.util;
 
+import static com.ihewro.focus.util.AtomParser.FEED;
+import static com.ihewro.focus.util.AtomParser.readFeedForFeed;
+
 import android.util.Xml;
 
 import com.blankj.ALog;
@@ -11,7 +14,6 @@ import com.ihewro.focus.bean.UserPreference;
 
 import org.jsoup.Jsoup;
 import org.litepal.LitePal;
-import org.litepal.exceptions.LitePalSupportException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -20,15 +22,11 @@ import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import okhttp3.internal.Util;
 import retrofit2.Response;
-
-import static com.ihewro.focus.util.AtomParser.FEED;
-import static com.ihewro.focus.util.AtomParser.readFeedForFeed;
 
 /**
  * <pre>
@@ -66,7 +64,7 @@ public class FeedParser {
      * @param xmlStr
      * @return[
      */
-    public static Feed parseStr2Feed(String xmlStr,String url) throws UnsupportedEncodingException {
+    private static Feed parseStr2Feed(String xmlStr, String url) throws UnsupportedEncodingException {
         if (Strings.isNullOrEmpty(xmlStr)) {
             return null;
         }
@@ -253,7 +251,12 @@ public class FeedParser {
         if (StringUtil.trim(link).equals("")){//link 与guid一定有一个是存在或者都存在，优先使用link的值
             link = guid;
         }
-        FeedItem feedItem = new FeedItem(title, DateUtil.date2TimeStamp(pubDate),description,content,link, false, false);
+
+        if (StringUtil.trim(guid).equals("")) {// link 与guid一定有一个是存在或者都存在，优先使用link的值
+            guid = link;
+        }
+
+        FeedItem feedItem = new FeedItem(title, DateUtil.date2TimeStamp(pubDate), description, content, link, guid, false, false);
 
         if (pubDate == null){
             feedItem.setNotHaveExtractTime(true);
@@ -342,26 +345,30 @@ public class FeedParser {
         return result;
     }
 
+    public static Feed HandleFeed(int id, Response<String> response, String originUrl) throws IOException {
+        return HandleFeed(id, response.code(), parseStr2Feed(response.body(), originUrl));
+    }
 
 
     /**
      * 获取到的数据与本地数据库的数据进行比对，重复的则恢复状态信息，不重复则入库，原子操作
      *
-     * @param response
+     * @param responseCode
      * @param feed
      * @return
      */
-    public static Feed HandleFeed(int id,Response<String> response, Feed feed) throws IOException {
+    private static Feed HandleFeed(int id, int responseCode, Feed feed) throws IOException {
         if (feed !=null){
+            ALog.d("请求订阅获取到的 feedItem 总数：" + feed.getFeedItemList().size());
+
             int count = LitePal.where("feedid = ?", String.valueOf(id)).count(FeedItem.class);
-
-
             //给feed下面所有feedItem设置feedName和feedId;
             //获取当前feed的iid
             List<Feed> tempFeeds = LitePal.where("url = ?",feed.getUrl()).find(Feed.class);
             int feedId = 0;
             if (tempFeeds.size() <= 0){
-                ALog.d("出现未订阅错误"+feed.getUrl());//我们获取feedItem内容是从找数据库的feed，所以不可能feedItem中的feed url 不在数据库中欧冠
+                // 我们获取feedItem内容是从找数据库的feed，所以不可能feedItem中的feed url 不在数据库中欧冠
+                ALog.d("出现未订阅错误" + feed.getUrl());
             }else {
                 feedId = tempFeeds.get(0).getId();
             }
@@ -375,40 +382,49 @@ public class FeedParser {
             feed.update(feedId);
 //        feed.save();//更新数据！
 
+            // 先查询该 feedId 下库中的所有 feedItem
+            List<FeedItem> localFeedItems = LitePal.where("feedid = ?", String.valueOf(feedId)).find(FeedItem.class);
+            ALog.d("本地获取到的 feedItem 总数：" + localFeedItems.size());
+
             //给feed下所有feedItem绑定feed信息
-            for (int i =0;i<feed.getFeedItemList().size();i++){
-                feed.getFeedItemList().get(i).setFeedName(feed.getName());
-                feed.getFeedItemList().get(i).setFeedId(feedId);
+            for (FeedItem feedItem : feed.getFeedItemList()) {
 
-                try{
-                    feed.getFeedItemList().get(i).saveThrows();//当前feed存储数据库
-                }catch (LitePalSupportException exception){
-//                    ALog.d("数据重复不会插入");//当前feedItem 已经存在数据库中了
-                    //此时要对feedItem进行状态字段的恢复，读取数据的状态
-                    FeedItem temp = LitePal.where("url = ?",feed.getFeedItemList().get(i).getUrl()).limit(1).find(FeedItem.class).get(0);
-                    feed.getFeedItemList().get(i).setId(temp.getId());
-                    feed.getFeedItemList().get(i).setRead(temp.isRead());
-                    feed.getFeedItemList().get(i).setFavorite(temp.isFavorite());
-                    feed.getFeedItemList().get(i).setDate(temp.getDate());//有的feedItem 源地址中 没有时间，所以要恢复第一次加入数据库中的时间
+                Optional<FeedItem> optionalFeedItem = localFeedItems.stream().filter(
+                        localFeedItem -> localFeedItem.getGuid().equals(feedItem.getGuid())
+                ).findFirst();
 
-                    temp.setContent(feed.getFeedItemList().get(i).getContent());
-                    temp.setTitle(feed.getFeedItemList().get(i).getTitle());
-                    temp.setSummary(feed.getFeedItemList().get(i).getSummary());
-                    if(UserPreference.queryValueByKey(UserPreference.AUTO_SET_FEED_NAME,"0").equals("1")){//没有选择，自动设置会手动设置name
-                        temp.setFeedName(feed.getFeedItemList().get(i).getFeedName());
+                if (!optionalFeedItem.isPresent()) {
+                    // 本地数据库中不存在当前feed时， 当前feed存储数据库
+                    ALog.d("存储当前feed至数据库");
+                    feedItem.setFeedName(feed.getName());
+                    feedItem.setFeedId(feedId);
+                    feedItem.saveThrows();
+                } else {
+                    // 当前feedItem 已经存在数据库中了，此时要对feedItem进行状态字段的覆盖
+                    ALog.d("数据库中已存在当前feed，更新相关状态");
+                    FeedItem localFeed = optionalFeedItem.get();
+                    if (feedItem.getDate() != 0L) {
+                        // 有的feedItem 源地址中 没有时间，所以要恢复第一次加入数据库中的时间, 只有有时间的才去更新
+                        localFeed.setDate(feedItem.getDate());
                     }
-                    temp.save();
-
+                    localFeed.setContent(feedItem.getContent());
+                    localFeed.setTitle(feedItem.getTitle());
+                    localFeed.setSummary(feedItem.getSummary());
+                    if(UserPreference.queryValueByKey(UserPreference.AUTO_SET_FEED_NAME,"0").equals("1")){//没有选择，自动设置会手动设置name
+                        localFeed.setFeedName(feedItem.getFeedName());
+                    }
+                    localFeed.saveThrows();
                 }
             }
 
             int count2 = LitePal.where("feedid = ?", String.valueOf(id)).count(FeedItem.class);
-//            ALog.d("请求前数目" + count + "请求后数目" + count2 + "时间");
-            FeedRequest feedRequire = new FeedRequest(feed.getId(),true,count2 - count,"",response.code(), DateUtil.getNowDateRFCInt());
+            ALog.d("请求前数目：" + count + "，请求后数目：" + count2);
+            FeedRequest feedRequire = new FeedRequest(feed.getId(), true, count2 - count, "", responseCode, DateUtil.getNowDateRFCInt());
             feedRequire.save();
         }
 
         return feed;
+
 
     }
 }

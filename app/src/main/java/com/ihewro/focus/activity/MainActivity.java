@@ -5,8 +5,12 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -26,7 +30,6 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blankj.ALog;
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.ihewro.focus.GlobalConfig;
@@ -77,6 +80,7 @@ import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import es.dmoral.toasty.Toasty;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
 import skin.support.SkinCompatManager;
@@ -175,7 +179,7 @@ public class MainActivity extends BaseActivity {
 
         initEmptyView();
 
-        clickFeedPostsFragment(new ArrayList<String>());
+        clickFeedPostsFragment(new ArrayList<>());
 
         initListener();
 
@@ -183,22 +187,40 @@ public class MainActivity extends BaseActivity {
 
         createTabLayout();
 
-        String[] perms = {Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (!Environment.isExternalStorageManager()) {
 
-        if (!EasyPermissions.hasPermissions(this, perms)) {
-            //没有权限 1. 申请权限
-            EasyPermissions.requestPermissions(
-                    new PermissionRequest.Builder(this, RQUEST_STORAGE_READ, perms)
-                            .setRationale("需要存储器读写权限以便后续备份和导入导出功能使用")
-                            .setPositiveButtonText("确定")
-                            .setNegativeButtonText("取消")
-                            .build());
+                MaterialDialog materialDialog = new MaterialDialog.Builder(this)
+                        .title("权限申请")
+                        .content("为确保后续备份和导入导出功能使用，Android 10 及以上设备需要授予管理所有文件权限")
+                        .negativeText("取消授权")
+                        .positiveText("确认")
+                        .onPositive((dialog, which) -> {
+                            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
+                            Uri.parse("package:" + getPackageName()));
+                            startActivity(intent);
+                        })
+                        .onNegative((dialog, which) -> Toasty.info(MainActivity.this, "你已取消授权，可能会影响后续正常使用", Toasty.LENGTH_SHORT).show())
+                        .canceledOnTouchOutside(false)
+                        .build();
+                materialDialog.show();
+            }
+        } else {
+            String[] perms = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
+            if (!EasyPermissions.hasPermissions(this, perms)) {
+                // 没有权限 1. 申请权限
+                EasyPermissions.requestPermissions(
+                        new PermissionRequest.Builder(this, RQUEST_STORAGE_READ, perms)
+                                .setRationale("需要存储器读写权限以便后续备份和导入导出功能使用")
+                                .setPositiveButtonText("确定")
+                                .setNegativeButtonText("取消")
+                                .build());
+            }
+
         }
 
         //开启定时任务
         startTimeService();
-
-
     }
 
     private void startTimeService(){
@@ -308,36 +330,27 @@ public class MainActivity extends BaseActivity {
                 toggleFeedListPopupView();
             }
         });*/
-        playButton.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                //加载框
-                final MaterialDialog loading = new MaterialDialog.Builder(MainActivity.this)
-                        .content("统计数据中……")
-                        .progress(false, 0, true)
-                        .build();
-                loading.show();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        final int feedItemNum = feedPostsFragment.getFeedItemNum();
-                        final int notReadNum = feedPostsFragment.getNotReadNum();
-                        UIUtil.runOnUiThread(MainActivity.this, new Runnable() {
-                            @Override
-                            public void run() {
-                                loading.dismiss();
-                                new MaterialDialog.Builder(MainActivity.this)
-                                        .title(toolbarTitle.getText())
-                                        .content("全部数目" + feedItemNum + "\n" + "未读数目" + notReadNum)
-                                        .show();
-                            }
-                        });
-                    }
-                }).start();
+        playButton.setOnLongClickListener(v -> {
+            // 加载框
+            final MaterialDialog loading = new MaterialDialog.Builder(MainActivity.this)
+                    .content("统计数据中……")
+                    .progress(false, 0, true)
+                    .build();
+            loading.show();
+            new Thread(() -> {
+                final int feedItemNum = feedPostsFragment.getFeedItemNum();
+                final int notReadNum = feedPostsFragment.getNotReadNum();
+                UIUtil.runOnUiThread(MainActivity.this, () -> {
+                    loading.dismiss();
+                    new MaterialDialog.Builder(MainActivity.this)
+                            .title(toolbarTitle.getText())
+                            .content("全部数目" + feedItemNum + "\n" + "未读数目" + notReadNum)
+                            .show();
+                });
+            }).start();
 
 
-                return true;
-            }
+            return true;
         });
 
         final GestureDetector gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
@@ -373,12 +386,7 @@ public class MainActivity extends BaseActivity {
         });
 
 
-        playButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return gestureDetector.onTouchEvent(event);
-            }
-        });
+        playButton.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
 
     }
 
@@ -493,21 +501,18 @@ public class MainActivity extends BaseActivity {
                     .setPopupCallback(new SimpleCallback() {
                         @Override
                         public void onShow() {
-                            popupView.getAdapter().setOnItemChildClickListener(new BaseQuickAdapter.OnItemChildClickListener() {
-                                @Override
-                                public void onItemChildClick(BaseQuickAdapter adapter, View view, int position) {
-                                    if (view.getId() == R.id.item_view) {
-                                        int feedFolderId = popupView.getFeedFolders().get(position).getId();
-                                        List<Feed> feeds = LitePal.where("feedfolderid = ?", String.valueOf(feedFolderId)).find(Feed.class);
-                                        ArrayList<String> list = new ArrayList<>();
+                            popupView.getAdapter().setOnItemChildClickListener((adapter, view, position) -> {
+                                if (view.getId() == R.id.item_view) {
+                                    int feedFolderId = popupView.getFeedFolders().get(position).getId();
+                                    List<Feed> feeds = LitePal.where("feedfolderid = ?", String.valueOf(feedFolderId)).find(Feed.class);
+                                    ArrayList<String> list = new ArrayList<>();
 
-                                        for (int i = 0; i < feeds.size(); i++) {
-                                            list.add(String.valueOf(feeds.get(i).getId()));
-                                        }
-                                        //切换到指定文件夹下
-                                        clickAndUpdateMainFragmentData(list, popupView.getFeedFolders().get(position).getName(),-1);
-                                        popupView.dismiss();//关闭弹窗
+                                    for (int i = 0; i < feeds.size(); i++) {
+                                        list.add(String.valueOf(feeds.get(i).getId()));
                                     }
+                                    // 切换到指定文件夹下
+                                    clickAndUpdateMainFragmentData(list, popupView.getFeedFolders().get(position).getName(), -1);
+                                    popupView.dismiss();// 关闭弹窗
                                 }
                             });
                         }
@@ -542,18 +547,10 @@ public class MainActivity extends BaseActivity {
 
         buildDrawer();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //初始化侧边栏  子线程刷新 不要阻塞
-                refreshLeftDrawerFeedList(false);
-                UIUtil.runOnUiThread(MainActivity.this, new Runnable() {
-                    @Override
-                    public void run() {
-                        drawer.setItems(subItems);
-                    }
-                });
-            }
+        new Thread(() -> {
+            // 初始化侧边栏  子线程刷新 不要阻塞
+            refreshLeftDrawerFeedList(false);
+            UIUtil.runOnUiThread(MainActivity.this, () -> drawer.setItems(subItems));
         }).start();
 
 
@@ -581,29 +578,27 @@ public class MainActivity extends BaseActivity {
                 .withTextColorRes(color)
                 .addProfiles(
                         profile,
-                        new ProfileSettingDrawerItem().withName("添加第三方服务").withDescription("添加内容源").withIcon(GoogleMaterial.Icon.gmd_add).withIdentifier(ADD_AUTH)
+                        new ProfileSettingDrawerItem()
+                                .withName("添加第三方服务")
+                                .withDescription("添加内容源")
+                                .withIcon(GoogleMaterial.Icon.gmd_add)
+                                .withIdentifier(ADD_AUTH)
                 )
-                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-                    @Override
-                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
+                .withOnAccountHeaderListener((view, profile1, currentProfile) -> {
 
-                        if (!currentProfile){
-                            switch ((int) profile.getIdentifier()){
-                                case ADD_AUTH:
-                                    AuthListActivity.activityStart(MainActivity.this);
-                                    break;
-                            }
+                    if (!currentProfile) {
+                        switch ((int) profile1.getIdentifier()) {
+                            case ADD_AUTH:
+                                AuthListActivity.activityStart(MainActivity.this);
+                                break;
                         }
-
-                        return false;
                     }
+
+                    return false;
                 })
                 .build();
 
         headerResult.getView().findViewById(R.id.material_drawer_account_header_current).setVisibility(View.GONE);
-
-
-
 
         //初始化侧边栏
         drawer = new DrawerBuilder().withActivity(this)
@@ -611,20 +606,14 @@ public class MainActivity extends BaseActivity {
                 .withToolbar(toolbar)
                 .withTranslucentStatusBar(true)
                 .withAccountHeader(headerResult)
-                .addDrawerItems((IDrawerItem[]) Objects.requireNonNull(subItems.toArray(new IDrawerItem[subItems.size()])))
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        drawerItemClick(drawerItem);
-                        return false;
-                    }
+                .addDrawerItems(Objects.requireNonNull(subItems.toArray(new IDrawerItem[subItems.size()])))
+                .withOnDrawerItemClickListener((view, position, drawerItem) -> {
+                    drawerItemClick(drawerItem);
+                    return false;
                 })
-                .withOnDrawerItemLongClickListener(new Drawer.OnDrawerItemLongClickListener() {
-                    @Override
-                    public boolean onItemLongClick(View view, int position, IDrawerItem drawerItem) {
-                        drawerLongClick(drawerItem);
-                        return true;
-                    }
+                .withOnDrawerItemLongClickListener((view, position, drawerItem) -> {
+                    drawerLongClick(drawerItem);
+                    return true;
                 })
                 .withStickyFooter(R.layout.component_drawer_foooter)
                 .withStickyFooterShadow(false)
@@ -642,45 +631,21 @@ public class MainActivity extends BaseActivity {
         }
 
         final boolean finalFlag = flag;
-        drawer.getStickyFooter().findViewById(R.id.mode).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (!finalFlag) {//flag true 表示夜间模式
-                    SkinCompatManager.getInstance().loadSkin("night", null, SkinCompatManager.SKIN_LOADER_STRATEGY_BUILD_IN);
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            recreate();
-                        }
-                    }, 200); // 延时1秒
-                } else {
-                    SkinCompatManager.getInstance().restoreDefaultTheme();
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            recreate();
-                        }
-                    }, 200); // 延时1秒
-                }
+        drawer.getStickyFooter().findViewById(R.id.mode).setOnClickListener(view -> {
+            if (!finalFlag) {// flag true 表示夜间模式
+                SkinCompatManager.getInstance().loadSkin("night", null, SkinCompatManager.SKIN_LOADER_STRATEGY_BUILD_IN);
+                new Handler().postDelayed(() -> recreate(), 200); // 延时1秒
+            } else {
+                SkinCompatManager.getInstance().restoreDefaultTheme();
+                new Handler().postDelayed(() -> recreate(), 200); // 延时1秒
             }
         });
 
 
-        drawer.getStickyFooter().findViewById(R.id.manage).setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                FeedManageActivity.activityStart(MainActivity.this);
-            }
-        });
+        drawer.getStickyFooter().findViewById(R.id.manage).setOnClickListener(view -> FeedManageActivity.activityStart(MainActivity.this));
 
 
-        drawer.getStickyFooter().findViewById(R.id.setting).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                SettingActivity.activityStart(MainActivity.this);
-            }
-        });
+        drawer.getStickyFooter().findViewById(R.id.setting).setOnClickListener(view -> SettingActivity.activityStart(MainActivity.this));
 
     }
 
@@ -688,36 +653,30 @@ public class MainActivity extends BaseActivity {
 
     private void updateDrawer() {
         //初始化侧边栏
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                selectIdentify = drawer.getCurrentSelection();
-                ALog.d("选择项" + selectIdentify);
-                expandPositions = drawer.getExpandableExtension().getExpandedItems();
-                refreshLeftDrawerFeedList(true);
-                UIUtil.runOnUiThread(MainActivity.this, new Runnable() {
+        new Thread(() -> {
+            selectIdentify = drawer.getCurrentSelection();
+            ALog.d("选择项" + selectIdentify);
+            expandPositions = drawer.getExpandableExtension().getExpandedItems();
+            refreshLeftDrawerFeedList(true);
+            UIUtil.runOnUiThread(MainActivity.this, () -> {
+                List<IDrawerItem> templist = new ArrayList<>(subItems);
+                drawer.setItems(templist);
+                // 恢复折叠
+                int[] temp = expandPositions.clone();
+
+                for (int i = 0; i < temp.length; i++) {
+                    drawer.getExpandableExtension().expand(temp[i]);
+                }
+
+                // TODO: 当一开始选中文件夹的时候总是报错！
+                /*new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        List<IDrawerItem> templist = new ArrayList<>(subItems);
-                        drawer.setItems(templist);
-                        //恢复折叠
-                        int[] temp = expandPositions.clone();
-
-                        for(int i = 0;i<temp.length;i++){
-                            drawer.getExpandableExtension().expand(temp[i]);
-                        }
-
-                        //TODO: 当一开始选中文件夹的时候总是报错！
-                        /*new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                drawer.setSelection(selectIdentify);
-                            }
-                        }, 800);*/
-
+                        drawer.setSelection(selectIdentify);
                     }
-                });
-            }
+                }, 800);*/
+
+            });
         }).start();
     }
 

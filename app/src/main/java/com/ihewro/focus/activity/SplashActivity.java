@@ -60,14 +60,11 @@ public class SplashActivity extends AppCompatActivity {
             animatedVectorDrawable.start();
 
             //跳转到 {@link MainActivity}
-            new AppStartTask(new TaskListener() {
-                @Override
-                public void onFinish(String jsonString) {
+            new AppStartTask(jsonString -> {
 
-                    finish();
-                    MainActivity.activityStart(SplashActivity.this);
+                finish();
+                MainActivity.activityStart(SplashActivity.this);
 
-                }
             }).execute();
         }
 

@@ -8,10 +8,7 @@ import com.ihewro.focus.bean.WebsiteCategory;
 import java.util.List;
 
 import retrofit2.Call;
-import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
-import retrofit2.http.Headers;
-import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.Url;
 
@@ -27,6 +24,7 @@ import retrofit2.http.Url;
 public interface HttpInterface {
 
     @GET
+    @ResponseConverter(format = ConverterFormat.STRING)
     Call<String> getRSSData(@Url String with);
 
  /*   @GET("{with}")
@@ -34,25 +32,26 @@ public interface HttpInterface {
 */
 
     @GET
+    @ResponseConverter(format = ConverterFormat.STRING)
     Call<String> getRSSDataWith(@Url String with);
 
 
-    @GET("webcategory")
-    Call<List<WebsiteCategory>> getCategoryList();
+    @GET
+    Call<List<WebsiteCategory>> getCategoryList(@Url String url);
 
-    @GET("weblist")
-    Call<List<Website>> getWebsiteListByCategory(@Query("name") String name);
+    @GET
+    Call<List<Website>> getWebsiteListByCategory(@Url String url, @Query("name") String name);
 
-    @GET("feedlist")
-    Call<List<Feed>> getFeedListByWebsite(@Query("name") String name);
+    @GET
+    Call<List<Feed>> getFeedListByWebsite(@Url String url, @Query("name") String name);
 
-    @GET("feedRequireList")
-    Call<List<FeedRequire>> getFeedRequireListByWebsite(@Query("id") String id);
+    @GET
+    Call<List<FeedRequire>> getFeedRequireListByWebsite(@Url String url, @Query("id") String id);
 
-    @GET("searchFeedListByName")
-    Call<List<Feed>> searchFeedListByName(@Query("name") String name);
+    @GET
+    Call<List<Feed>> searchFeedListByName(@Url String url, @Query("name") String name);
 
-    @GET("searchWebsiteByName")
-    Call<List<Website>> searchWebsiteByName(@Query("name") String name);
+    @GET
+    Call<List<Website>> searchWebsiteByName(@Url String url, @Query("name") String name);
 
 }

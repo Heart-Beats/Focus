@@ -89,127 +89,99 @@ public class SynchroFragment extends SettingFragment {
 
     @Override
     public void initListener() {
-        time_interval.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                final int select = GlobalConfig.refreshIntervalInt.indexOf(Integer.parseInt(UserPreference.queryValueByKey(UserPreference.tim_interval, String.valueOf(-1))));//默认选择最后一项，即-1
+        time_interval.setOnPreferenceClickListener(preference -> {
+            final int select = GlobalConfig.refreshIntervalInt.indexOf(Integer.parseInt(UserPreference.queryValueByKey(UserPreference.tim_interval, String.valueOf(-1))));//默认选择最后一项，即-1
 
-                new MaterialDialog.Builder(getActivity())
-                        .title("选择刷新间隔")
-                        .items(GlobalConfig.refreshInterval)
-                        .itemsCallbackSingleChoice(select, new MaterialDialog.ListCallbackSingleChoice() {
-                            @Override
-                            public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                                UserPreference.updateOrSaveValueByKey(UserPreference.tim_interval, String.valueOf(GlobalConfig.refreshIntervalInt.get(which)));
-                                TimingService.startService(getActivity(),true);
-                                return false;
+            new MaterialDialog.Builder(getActivity())
+                    .title("选择刷新间隔")
+                    .items(GlobalConfig.refreshInterval)
+                    .itemsCallbackSingleChoice(select, (dialog, view, which, text) -> {
+                        UserPreference.updateOrSaveValueByKey(UserPreference.tim_interval, String.valueOf(GlobalConfig.refreshIntervalInt.get(which)));
+                        TimingService.startService(getActivity(),true);
+                        return false;
+                    })
+
+                    .positiveText("选择")
+                    .show();
+
+
+            return false;
+        });
+
+        ownrsshub.setOnPreferenceClickListener(preference -> {
+
+            new MaterialDialog.Builder(getActivity())
+                    .title("填写自定义RSSHub源")
+                    .content("输入你的地址：")
+                    .inputType(InputType.TYPE_CLASS_TEXT)
+                    .input("", UserPreference.queryValueByKey(UserPreference.OWN_RSSHUB, GlobalConfig.OfficialRSSHUB), (dialog, input) -> {
+                        String name = dialog.getInputEditText().getText().toString().trim();
+                        if (name.equals("")) {
+                            Toasty.info(getActivity(), "请勿为空😯").show();
+                        } else {
+                            UserPreference.updateOrSaveValueByKey(UserPreference.OWN_RSSHUB, dialog.getInputEditText().getText().toString().trim());
+                            Toasty.success(getActivity(), "填写成功").show();
+                        }
+                    }).show();
+
+
+            return false;
+        });
+
+        use_internet_while_open.setOnPreferenceClickListener(preference -> {
+            if (use_internet_while_open.isChecked()){
+                UserPreference.updateOrSaveValueByKey(UserPreference.USE_INTERNET_WHILE_OPEN,"1");
+            }else {
+                UserPreference.updateOrSaveValueByKey(UserPreference.USE_INTERNET_WHILE_OPEN,"0");
+            }
+            return false;
+        });
+
+
+        only_wifi.setOnPreferenceClickListener(preference -> {
+            if (only_wifi.isChecked()){
+                UserPreference.updateOrSaveValueByKey(UserPreference.notWifi,"1");
+            }else {
+                UserPreference.updateOrSaveValueByKey(UserPreference.notWifi,"0");
+            }
+            return false;
+        });
+
+
+        choose_rsshub.setOnPreferenceClickListener(preference -> {
+            //显示弹窗
+            //之前选择的位置
+            final int select = GlobalConfig.rssHub.indexOf(UserPreference.queryValueByKey(UserPreference.RSS_HUB,GlobalConfig.OfficialRSSHUB));
+            ALog.d(UserPreference.getRssHubUrl());
+            List<String> list = GlobalConfig.rssHub;
+            new MaterialDialog.Builder(getActivity())
+                    .title("rsshub源选择")
+                    .items(list)
+                    .itemsCallbackSingleChoice(select, (dialog, view, which, text) -> {
+                        if (which>=0 && which<3){
+                            UserPreference.updateOrSaveValueByKey(UserPreference.RSS_HUB,GlobalConfig.rssHub.get(which));
+                            if (which!=2){
+                                ownrsshub.setEnabled(false);
+                            }else {
+                                ownrsshub.setEnabled(true);
                             }
-                        })
+                            return true;
+                        }
+                        return false;
+                    })
+                    .positiveText("选择")
+                    .show();
 
-                        .positiveText("选择")
-                        .show();
-
-
-                return false;
-            }
+            return false;
         });
 
-        ownrsshub.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-
-                new MaterialDialog.Builder(getActivity())
-                        .title("填写自定义RSSHub源")
-                        .content("输入你的地址：")
-                        .inputType(InputType.TYPE_CLASS_TEXT)
-                        .input("",UserPreference.queryValueByKey(UserPreference.OWN_RSSHUB, GlobalConfig.OfficialRSSHUB)
-, new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(MaterialDialog dialog, CharSequence input) {
-                                String name = dialog.getInputEditText().getText().toString().trim();
-                                if (name.equals("")){
-                                    Toasty.info(getActivity(),"请勿为空😯").show();
-                                }else {
-                                    UserPreference.updateOrSaveValueByKey(UserPreference.OWN_RSSHUB,dialog.getInputEditText().getText().toString().trim());
-                                    Toasty.success(getActivity(),"填写成功").show();
-                                }
-                            }
-                        }).show();
-
-
-                return false;
+        auto_name.setOnPreferenceClickListener(preference -> {
+            if (auto_name.isChecked()){
+                UserPreference.updateOrSaveValueByKey(UserPreference.AUTO_SET_FEED_NAME,"1");
+            }else {
+                UserPreference.updateOrSaveValueByKey(UserPreference.AUTO_SET_FEED_NAME,"0");
             }
-        });
-
-        use_internet_while_open.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                if (use_internet_while_open.isChecked()){
-                    UserPreference.updateOrSaveValueByKey(UserPreference.USE_INTERNET_WHILE_OPEN,"1");
-                }else {
-                    UserPreference.updateOrSaveValueByKey(UserPreference.USE_INTERNET_WHILE_OPEN,"0");
-                }
-                return false;
-            }
-        });
-
-
-        only_wifi.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                if (only_wifi.isChecked()){
-                    UserPreference.updateOrSaveValueByKey(UserPreference.notWifi,"1");
-                }else {
-                    UserPreference.updateOrSaveValueByKey(UserPreference.notWifi,"0");
-                }
-                return false;
-            }
-        });
-
-
-        choose_rsshub.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                //显示弹窗
-                //之前选择的位置
-                final int select = GlobalConfig.rssHub.indexOf(UserPreference.queryValueByKey(UserPreference.RSS_HUB,GlobalConfig.OfficialRSSHUB));
-                ALog.d(UserPreference.getRssHubUrl());
-                List<String> list = GlobalConfig.rssHub;
-                new MaterialDialog.Builder(getActivity())
-                        .title("rsshub源选择")
-                        .items(list)
-                        .itemsCallbackSingleChoice(select, new MaterialDialog.ListCallbackSingleChoice() {
-                            @Override
-                            public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                                if (which>=0 && which<3){
-                                    UserPreference.updateOrSaveValueByKey(UserPreference.RSS_HUB,GlobalConfig.rssHub.get(which));
-                                    if (which!=2){
-                                        ownrsshub.setEnabled(false);
-                                    }else {
-                                        ownrsshub.setEnabled(true);
-                                    }
-                                    return true;
-                                }
-                                return false;
-                            }
-                        })
-                        .positiveText("选择")
-                        .show();
-
-                return false;
-            }
-        });
-
-        auto_name.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                if (auto_name.isChecked()){
-                    UserPreference.updateOrSaveValueByKey(UserPreference.AUTO_SET_FEED_NAME,"1");
-                }else {
-                    UserPreference.updateOrSaveValueByKey(UserPreference.AUTO_SET_FEED_NAME,"0");
-                }
-                return false;
-            }
+            return false;
         });
     }
 

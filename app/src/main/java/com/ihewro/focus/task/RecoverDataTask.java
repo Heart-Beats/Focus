@@ -7,18 +7,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
-import android.util.Pair;
-import android.view.View;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.afollestad.materialdialogs.folderselector.FileChooserDialog;
 import com.blankj.ALog;
 import com.ihewro.focus.GlobalConfig;
-import com.ihewro.focus.R;
 import com.ihewro.focus.bean.Collection;
 import com.ihewro.focus.bean.CollectionAndFolderRelation;
 import com.ihewro.focus.bean.CollectionFolder;
@@ -41,7 +36,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import es.dmoral.toasty.Toasty;
 
@@ -109,80 +103,57 @@ public class RecoverDataTask extends AsyncTask<Void,Void,Boolean> {
                     .title("备份列表")
                     .content("单击恢复数据，长按删除备份")
                     .items(backupFilesName)
-                    .itemsLongCallback(new MaterialDialog.ListLongCallback() {
-                        @Override
-                        public boolean onLongSelection(final MaterialDialog dialog, View itemView, final int position, CharSequence text) {
-                            new MaterialDialog.Builder(activity)
-                                    .title("确认删除此备份吗？")
-                                    .content("该操作无法撤销，删除前先确定你不需要该备份数据了")
-                                    .positiveText("确定")
-                                    .negativeText("取消")
-                                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                        @Override
-                                        public void onClick(@NonNull MaterialDialog dialog2, @NonNull DialogAction which2) {
-                                            File file = new File(backupFilesPath.get(position));
-                                            if (file.exists()){
-                                                file.delete();
-                                            }
-                                            Toasty.success(activity,"删除该备份成功",Toast.LENGTH_SHORT).show();
-                                            dialog.getItems().remove(position);
-                                            dialog.notifyItemsChanged();
-                                        }
-                                    })
-                                    .show();
-                            return false;
-                        }
+                    .itemsLongCallback((dialog, itemView, position, text) -> {
+                        new MaterialDialog.Builder(activity)
+                                .title("确认删除此备份吗？")
+                                .content("该操作无法撤销，删除前先确定你不需要该备份数据了")
+                                .positiveText("确定")
+                                .negativeText("取消")
+                                .onPositive((dialog2, which2) -> {
+                                    File file = new File(backupFilesPath.get(position));
+                                    if (file.exists()) {
+                                        file.delete();
+                                    }
+                                    Toasty.success(activity, "删除该备份成功", Toast.LENGTH_SHORT).show();
+                                    dialog.getItems().remove(position);
+                                    dialog.notifyItemsChanged();
+                                })
+                                .show();
+                        return false;
                     })
-                    .itemsCallback(new MaterialDialog.ListCallback() {
-                        @Override
-                        public void onSelection(MaterialDialog dialog, View view, final int which, CharSequence text) {
-                            new MaterialDialog.Builder(activity)
-                                    .title("确认恢复此备份吗？")
-                                    .content("一旦恢复数据后，无法撤销操作。但是你可以稍后继续选择恢复其他备份文件")
-                                    .positiveText("确定")
-                                    .negativeText("取消")
-                                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-                                        @Override
-                                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which2) {
+                    .itemsCallback((dialog, view, which, text) -> new MaterialDialog.Builder(activity)
+                            .title("确认恢复此备份吗？")
+                            .content("一旦恢复数据后，无法撤销操作。但是你可以稍后继续选择恢复其他备份文件")
+                            .positiveText("确定")
+                            .negativeText("取消")
+                            .onPositive((dialog12, which2) -> {
 
-                                            final MaterialDialog dialog1 = new MaterialDialog.Builder(activity)
-                                                    .content("马上就好……")
-                                                    .progress(true, 0)
-                                                    .show();
+                                final MaterialDialog dialog1 = new MaterialDialog.Builder(activity)
+                                        .content("马上就好……")
+                                        .progress(true, 0)
+                                        .show();
 
-                                            new Thread(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    importData(backupFilesPath.get(which));
-                                                    UIUtil.runOnUiThread(activity,new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            dialog1.dismiss();
-                                                            Toasty.success(activity,"恢复数据成功！", Toast.LENGTH_SHORT).show();
-                                                            EventBus.getDefault().post(new EventMessage(EventMessage.DATABASE_RECOVER));
-                                                        }
-                                                    });
-                                                }
-                                            }).start();
-                                        }
-                                    })
-                                    .show();
-                        }
-                    })
+                                new Thread(() -> {
+                                    importData(backupFilesPath.get(which));
+                                    UIUtil.runOnUiThread(activity, () -> {
+                                        dialog1.dismiss();
+                                        Toasty.success(activity, "恢复数据成功！", Toast.LENGTH_SHORT).show();
+                                        EventBus.getDefault().post(new EventMessage(EventMessage.DATABASE_RECOVER));
+                                    });
+                                }).start();
+                            })
+                            .show())
                     .neutralText("导入备份")
-                    .onNeutral(new MaterialDialog.SingleButtonCallback() {
-                        @Override
-                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                            //导入备份
+                    .onNeutral((dialog, which) -> {
+                        // 导入备份
 
-                            new FileChooserDialog.Builder(activity)
-                                    .initialPath(Environment.getExternalStorageDirectory().getAbsolutePath())  // changes initial path, defaults to external storage directory
-                                    .extensionsFilter(".db") // Optional extension filter, will override mimeType()
-                                    .tag("optional-identifier")
-                                    .goUpLabel("上一级") // custom go up label, default label is "..."
-                                    .show((FragmentActivity)activity); // an AppCompatActivity which implements FileCallback
+                        new FileChooserDialog.Builder(activity)
+                                .initialPath(Environment.getExternalStorageDirectory().getAbsolutePath())  // changes initial path, defaults to external storage directory
+                                .extensionsFilter(".db") // Optional extension filter, will override mimeType()
+                                .tag("optional-identifier")
+                                .goUpLabel("上一级") // custom go up label, default label is "..."
+                                .show((FragmentActivity) activity); // an AppCompatActivity which implements FileCallback
 
-                        }
                     })
                     .show();
         }else {
@@ -259,13 +230,14 @@ public class RecoverDataTask extends AsyncTask<Void,Void,Boolean> {
                                     int feedId2 = feed.getId();
                                     String feedName = feedItemCur.getString(feedItemCur.getColumnIndex("feedname"));
                                     String url2 = feedItemCur.getString(feedItemCur.getColumnIndex("url"));
+                                    String guid = feedItemCur.getString(feedItemCur.getColumnIndex("guid"));
                                     temp = StringUtil.trim(feedItemCur.getString(feedItemCur.getColumnIndex("read")));
                                     boolean read;
                                     read = temp.equals("1");
                                     boolean favorite;
                                     temp = StringUtil.trim(feedItemCur.getString(feedItemCur.getColumnIndex("favorite")));
                                     favorite = temp.equals("1");
-                                    FeedItem feedItem = new FeedItem(title,date,summary,content,feedId2,feedName,url2,read,favorite);
+                                    FeedItem feedItem = new FeedItem(title, date, summary, content, feedId2, feedName, url2, guid, read, favorite);
                                     feedItem.save();
                                 } while (feedItemCur.moveToNext());
                             }
@@ -315,9 +287,10 @@ public class RecoverDataTask extends AsyncTask<Void,Void,Boolean> {
                         String content = collectionCur.getString(collectionCur.getColumnIndex("content"));
                         String feedName = collectionCur.getString(collectionCur.getColumnIndex("feedname"));
                         String url2 = collectionCur.getString(collectionCur.getColumnIndex("url"));
+                        String guid = collectionCur.getString(collectionCur.getColumnIndex("guid"));
                         long time = DataUtil.getColumnLong(collectionCur,"time",DateUtil.getNowDateRFCInt());
                         int itemType = DataUtil.getColumnInt(collectionCur,"itemtype",Collection.FEED_ITEM);
-                        Collection collection = new Collection(title,feedName,date,summary,content,url2,itemType,time);
+                        Collection collection = new Collection(title, feedName, date, summary, content, url2, guid, itemType, time);
                         collection.save();
                         collectionIdMap.put(id,collection.getId());
                     }while (collectionCur.moveToNext());
