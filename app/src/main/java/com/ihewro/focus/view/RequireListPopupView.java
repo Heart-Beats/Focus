@@ -105,14 +105,11 @@ public class RequireListPopupView extends BottomPopupView {
         if (!help.isHelp()){
             actionHelp.setVisibility(View.GONE);
         }else {
-            actionHelp.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //打开帮助页面。是一个网页
-                    //webview的dialog
-                    int accentColor = ContextCompat.getColor(getContext(), R.color.accent);
-                    HelpDialog.create(false, accentColor, help.getContent()).show(fragmentManager, "changelog");
-                }
+            actionHelp.setOnClickListener(view -> {
+                // 打开帮助页面。是一个网页
+                // webview的dialog
+                int accentColor = ContextCompat.getColor(getContext(), R.color.accent);
+                HelpDialog.create(false, accentColor, help.getContent()).show(fragmentManager, "changelog");
             });
         }
 
@@ -137,18 +134,10 @@ public class RequireListPopupView extends BottomPopupView {
     private void initListener(){
 
 
-        btnFinish.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                feedSave();
-            }
-        });
+        btnFinish.setOnClickListener(view -> feedSave());
 
-        actionClose.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dismiss();//关闭当前弹窗
-            }
+        actionClose.setOnClickListener(view -> {
+            dismiss();// 关闭当前弹窗
         });
     }
 
@@ -205,7 +194,10 @@ public class RequireListPopupView extends BottomPopupView {
                     editTextView.setError("不能为空哦");
                     isValidate = false;
                 }else {
-                    jointUrl.append("/"+editText);
+                    if (!editText.trim().equals("")) {
+                        //仅仅可选的填写不为空时，才拼接路径
+                        jointUrl.append("/" + editText);
+                    }
                     isNeedJointUrl = true;
                 }
             }

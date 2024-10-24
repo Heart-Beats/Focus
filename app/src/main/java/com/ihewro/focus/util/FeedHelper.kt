@@ -68,13 +68,11 @@ object FeedHelper {
 
 				if (!optionalFeedItem.isPresent) {
 					// 本地数据库中不存在当前feed时， 当前feed存储数据库
-					ALog.d("存储当前feed至数据库")
 					it.feedName = feed.name
 					it.feedId = feedId
 					it.saveThrows()
 				} else {
 					// 当前feedItem 已经存在数据库中了，此时要对feedItem进行状态字段的覆盖
-					ALog.d("数据库中已存在当前feed，更新相关状态")
 					val localFeed = optionalFeedItem.get()
 					if (it.date != 0L) {
 						// 有的feedItem 源地址中 没有时间，所以要恢复第一次加入数据库中的时间, 只有有时间的才去更新
