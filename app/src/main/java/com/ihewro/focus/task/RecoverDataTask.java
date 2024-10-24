@@ -230,6 +230,7 @@ public class RecoverDataTask extends AsyncTask<Void,Void,Boolean> {
                                     int feedId2 = feed.getId();
                                     String feedName = feedItemCur.getString(feedItemCur.getColumnIndex("feedname"));
                                     String url2 = feedItemCur.getString(feedItemCur.getColumnIndex("url"));
+                                    String feedUrl = feedItemCur.getString(feedItemCur.getColumnIndex("feedurl"));
                                     String guid = feedItemCur.getString(feedItemCur.getColumnIndex("guid"));
                                     temp = StringUtil.trim(feedItemCur.getString(feedItemCur.getColumnIndex("read")));
                                     boolean read;
@@ -237,7 +238,7 @@ public class RecoverDataTask extends AsyncTask<Void,Void,Boolean> {
                                     boolean favorite;
                                     temp = StringUtil.trim(feedItemCur.getString(feedItemCur.getColumnIndex("favorite")));
                                     favorite = temp.equals("1");
-                                    FeedItem feedItem = new FeedItem(title, date, summary, content, feedId2, feedName, url2, guid, read, favorite);
+                                    FeedItem feedItem = new FeedItem(title, date, summary, content, feedId2, feedName, url2, feedUrl, guid, read, favorite);
                                     feedItem.save();
                                 } while (feedItemCur.moveToNext());
                             }
@@ -285,12 +286,13 @@ public class RecoverDataTask extends AsyncTask<Void,Void,Boolean> {
                         Long date = collectionCur.getLong(collectionCur.getColumnIndex("date"));
                         String summary = collectionCur.getString(collectionCur.getColumnIndex("summary"));
                         String content = collectionCur.getString(collectionCur.getColumnIndex("content"));
-                        String feedName = collectionCur.getString(collectionCur.getColumnIndex("feedname"));
+                        String feedName = collectionCur.getString(collectionCur.getColumnIndex("feedItemname"));
                         String url2 = collectionCur.getString(collectionCur.getColumnIndex("url"));
+                        String feedUrl = collectionCur.getString(collectionCur.getColumnIndex("feedurl"));
                         String guid = collectionCur.getString(collectionCur.getColumnIndex("guid"));
                         long time = DataUtil.getColumnLong(collectionCur,"time",DateUtil.getNowDateRFCInt());
                         int itemType = DataUtil.getColumnInt(collectionCur,"itemtype",Collection.FEED_ITEM);
-                        Collection collection = new Collection(title, feedName, date, summary, content, url2, guid, itemType, time);
+                        Collection collection = new Collection(title, feedName, date, summary, content, url2, feedUrl, guid, itemType, time);
                         collection.save();
                         collectionIdMap.put(id,collection.getId());
                     }while (collectionCur.moveToNext());

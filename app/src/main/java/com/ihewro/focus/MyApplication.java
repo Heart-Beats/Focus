@@ -6,6 +6,7 @@ import android.util.Log;
 import com.blankj.ALog;
 import com.ihewro.focus.activity.MainActivity;
 import com.ihewro.focus.bean.UserPreference;
+import com.ihewro.focus.db.MyDatabaseListener;
 import com.ihewro.focus.helper.BlockDetectByPrinter;
 import com.ihewro.focus.util.ImageLoaderManager;
 import com.scwang.smartrefresh.header.MaterialHeader;
@@ -81,6 +82,7 @@ public class MyApplication extends LitePalApplication {
     public void onCreate() {
         super.onCreate();
         LitePal.initialize(this);
+        LitePal.registerDatabaseListener(new MyDatabaseListener());
         LitePal.getDatabase().disableWriteAheadLogging();
         mContext = this;
         initALog();

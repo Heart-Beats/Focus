@@ -31,7 +31,7 @@ import es.dmoral.toasty.Toasty;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
 
-import static com.ihewro.focus.util.FeedParser.skip;
+import static com.ihewro.focus.parser.FeedParser.skip;
 
 /**
  * <pre>

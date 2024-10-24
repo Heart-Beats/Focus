@@ -67,7 +67,7 @@ public class DateUtil {
      * @param date_str 字符串日期
      * @return
      */
-    static long date2TimeStamp(String date_str){
+    public static long date2TimeStamp(String date_str){
         //RFC3339
         String[] dateFormats = {"EEE, dd MMM yyyy HH:mm:ss Z","yyyy-MM-dd'T'HH:mm:ss.SSS'Z'","yyyy-MM-dd"};
 

@@ -100,7 +100,8 @@ public class UIUtil {
 
         // 冒号 ( :) 是文件系统中不允许的字符，特别是在 Android 的文件路径,这里替换为 "-"
         String nowDateStr = DateUtil.getNowDateStr().replace(":","-");
-        FileUtil.copyFileToTarget(UIUtil.getContext().getDatabasePath("focus.db").getAbsolutePath(), GlobalConfig.appDirPath + "database/autobackup/" + "auto:" + nowDateStr + ".db", () -> {
+        FileUtil.copyFileToTarget(UIUtil.getContext().getDatabasePath("focus.db").getAbsolutePath(),
+                GlobalConfig.appDirPath + "database/autobackup/" + "auto_" + nowDateStr + ".db", () -> {
             // nothing to do
         });
     }

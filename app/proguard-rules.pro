@@ -31,3 +31,6 @@
 -keepclassmembers class * extends com.stephentuso.welcome.WelcomeActivity {
     public static java.lang.String welcomeKey();
 }
+
+-keep class org.litepal.** {*;}
+-keep class * extends org.litepal.crud.LitePalSupport {*;}

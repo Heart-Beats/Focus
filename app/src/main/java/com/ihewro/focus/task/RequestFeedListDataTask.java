@@ -14,7 +14,7 @@ import com.ihewro.focus.callback.RequestDataCallback;
 import com.ihewro.focus.http.HttpInterface;
 import com.ihewro.focus.http.RetrofitManager;
 import com.ihewro.focus.util.DateUtil;
-import com.ihewro.focus.util.FeedParser;
+import com.ihewro.focus.util.FeedHelper;
 import com.ihewro.focus.util.StringUtil;
 import com.ihewro.focus.util.ThreadUtil;
 import com.ihewro.focus.util.UIUtil;
@@ -119,7 +119,7 @@ public class RequestFeedListDataTask extends AsyncTask<Feed, Integer, Message> {
                     feed.save();
                     //处理数据库的时候我们进行同步处理
                     synchronized(this){
-                        Feed feed2 = FeedParser.HandleFeed(feed.getId(), response, originUrl);
+                        Feed feed2 = FeedHelper.INSTANCE.HandleFeed(feed.getId(), response, originUrl);
                         // feed更新到当前的时间流中
                         if (feed2!=null){
                             return new Message(true,feed2.getFeedItemList());

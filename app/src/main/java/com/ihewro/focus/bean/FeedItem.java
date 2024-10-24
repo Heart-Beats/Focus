@@ -40,7 +40,7 @@ public class FeedItem extends LitePalSupport implements ISuspensionInterface, Se
 
     private String url;// 文章指向的链接，是用户点击该内容时会跳转的页面地址，通常是该项的永久链接
 
-    @Column(unique = true)
+    private String feedUrl; // 订阅地址，  这里需要与 guid 一起组合作为数据库唯一约束， 因为订阅存在中英文的原因，可能会导致 guid 相同
     private String guid; // 用于唯一标识 RSS 内容项。RSS 读取器依赖 <guid> 来区分每个项是否是新的或已经处理过的，避免重复展示
 
     private boolean read;//是否已经阅读,true 表示已阅读
@@ -70,7 +70,7 @@ public class FeedItem extends LitePalSupport implements ISuspensionInterface, Se
     public FeedItem() {
     }
 
-    public FeedItem(String title, Long date, String summary, String content, int feedId, String feedName, String url, String guid, boolean read, boolean favorite) {
+    public FeedItem(String title, Long date, String summary, String content, int feedId, String feedName, String url, String feedUrl, String guid, boolean read, boolean favorite) {
         this.title = title;
         this.date = date;
         this.summary = summary;
@@ -78,17 +78,19 @@ public class FeedItem extends LitePalSupport implements ISuspensionInterface, Se
         this.feedId = feedId;
         this.feedName = feedName;
         this.url = url;
+        this.feedUrl = feedUrl;
         this.guid = guid;
         this.read = read;
         this.favorite = favorite;
     }
 
-    public FeedItem(String title, Long date, String summary, String content, String url, String guid, boolean read, boolean favorite) {
+    public FeedItem(String title, Long date, String summary, String content, String url, String feedUrl, String guid, boolean read, boolean favorite) {
         this.title = title;
         this.date = date;
         this.summary = summary;
         this.content = content;
         this.url = url;
+        this.feedUrl = feedUrl;
         this.guid = guid;
         this.read = read;
         this.favorite = favorite;
@@ -102,6 +104,13 @@ public class FeedItem extends LitePalSupport implements ISuspensionInterface, Se
         this.url = url;
     }
 
+    public String getFeedUrl() {
+        return feedUrl;
+    }
+
+    public void setFeedUrl(String feedUrl) {
+        this.feedUrl = feedUrl;
+    }
 
     public String getGuid() {
         return guid;
@@ -203,7 +212,7 @@ public class FeedItem extends LitePalSupport implements ISuspensionInterface, Se
     public boolean equals(@android.support.annotation.Nullable Object obj) {
         FeedItem feedItem = ((FeedItem)obj);
         assert feedItem != null;
-        if (this.guid.equals(feedItem.getGuid())) {
+        if (this.feedUrl.equals(feedItem.getFeedUrl()) && this.guid.equals(feedItem.getGuid())) {
             return true;
         }else {
             return false;
@@ -212,8 +221,8 @@ public class FeedItem extends LitePalSupport implements ISuspensionInterface, Se
 
     @Override
     public int hashCode() {
-        if (this.guid != null) {
-            return this.guid.hashCode();
+        if (this.feedUrl != null && this.guid != null) {
+            return this.feedUrl.hashCode() + this.guid.hashCode();
         }
 
         return this.id;
@@ -262,10 +271,8 @@ public class FeedItem extends LitePalSupport implements ISuspensionInterface, Se
     public static void clickWhenNotFavorite(Activity activity, FeedItem feedItem, UICallback uiCallback){
         //点击进行收藏
         Collection collection = new Collection(feedItem.getTitle(), feedItem.getFeedName(), feedItem.getDate(), feedItem.getSummary(),
-                feedItem.getContent(), feedItem.getUrl(), feedItem.getGuid(), Collection.FEED_ITEM, DateUtil.getNowDateRFCInt());
+                feedItem.getContent(), feedItem.getUrl(), feedItem.feedUrl, feedItem.getGuid(), Collection.FEED_ITEM, DateUtil.getNowDateRFCInt());
 
         clickWhenNotFavorite(activity,collection,uiCallback);
-
-
     }
 }

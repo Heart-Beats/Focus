@@ -14,7 +14,6 @@ import com.ihewro.focus.activity.FeedManageActivity;
 import com.ihewro.focus.bean.EventMessage;
 import com.ihewro.focus.bean.Feed;
 import com.ihewro.focus.bean.FeedFolder;
-import com.ihewro.focus.bean.UserPreference;
 
 import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
@@ -32,7 +31,7 @@ import es.dmoral.toasty.Toasty;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
 
-import static com.ihewro.focus.util.FeedParser.skip;
+import static com.ihewro.focus.parser.FeedParser.skip;
 
 /**
  * <pre>

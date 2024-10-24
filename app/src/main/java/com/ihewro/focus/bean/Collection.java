@@ -35,7 +35,7 @@ public class Collection extends LitePalSupport implements MultiItemEntity, ISusp
 
     private String url;// 文章指向的链接，是用户点击该内容时会跳转的页面地址，通常是该项的永久链接
 
-    @Column(unique = true)
+    private String feedUrl; // 订阅地址，  这里需要与 guid 一起组合作为数据库唯一约束， 因为订阅存在中英文的原因，可能会导致 guid 相同
     private String guid; // 用于唯一标识 RSS 内容项。RSS 读取器依赖 <guid> 来区分每个项是否是新的或已经处理过的，避免重复展示
 
     private int itemType;//收藏类型
@@ -49,13 +49,14 @@ public class Collection extends LitePalSupport implements MultiItemEntity, ISusp
     }
 
     //收藏文章的构造器
-    public Collection(String title, String feedName, Long date, String summary, String content, String url, String guid, int itemType, Long time) {
+    public Collection(String title, String feedName, Long date, String summary, String content, String url, String feedUrl, String guid, int itemType, Long time) {
         this.title = title;
         this.feedName = feedName;
         this.date = date;
         this.summary = summary;
         this.content = content;
         this.url = url;
+        this.feedUrl = url;
         this.guid = guid;
         this.itemType = itemType;
         this.time = time;
@@ -116,6 +117,14 @@ public class Collection extends LitePalSupport implements MultiItemEntity, ISusp
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getFeedUrl() {
+        return feedUrl;
+    }
+
+    public void setFeedUrl(String feedUrl) {
+        this.feedUrl = feedUrl;
     }
 
     public String getGuid() {

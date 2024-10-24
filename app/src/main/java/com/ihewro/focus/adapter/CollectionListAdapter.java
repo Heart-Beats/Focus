@@ -119,7 +119,7 @@ public class CollectionListAdapter extends BaseMultiItemQuickAdapter<Collection,
 
             List<FeedItem> list = new ArrayList<>();
 
-            list.add(new FeedItem(item.getTitle(), item.getDate(), item.getSummary(), item.getContent(), item.getUrl(), item.getGuid(), true, true));
+            list.add(new FeedItem(item.getTitle(), item.getDate(), item.getSummary(), item.getContent(), item.getUrl(), item.getFeedUrl(), item.getGuid(), true, true));
 
             PostDetailActivity.activityStart(activity, 0, list, PostDetailActivity.ORIGIN_STAR);
         });

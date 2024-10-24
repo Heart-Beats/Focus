@@ -1,11 +1,9 @@
 package com.ihewro.focus.fragemnt.setting;
 
-import android.support.annotation.NonNull;
 import android.support.v7.preference.Preference;
 import android.text.InputType;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.ihewro.focus.GlobalConfig;
 import com.ihewro.focus.R;
@@ -13,7 +11,6 @@ import com.ihewro.focus.bean.EventMessage;
 import com.ihewro.focus.bean.Feed;
 import com.ihewro.focus.bean.FeedFolder;
 import com.ihewro.focus.bean.FeedItem;
-import com.ihewro.focus.callback.FileOperationCallback;
 import com.ihewro.focus.task.FixDataTask;
 import com.ihewro.focus.task.RecoverDataTask;
 import com.ihewro.focus.util.DateUtil;
@@ -96,7 +93,8 @@ public class DataFragment extends SettingFragment{
                     .onPositive((dialog, which) -> {
                         // 冒号 ( :) 是文件系统中不允许的字符，特别是在 Android 的文件路径,这里替换为 "-"
                         String nowDateStr = DateUtil.getNowDateStr().replace(":","-");
-                        FileUtil.copyFileToTarget(getActivity().getDatabasePath("focus.db").getAbsolutePath(), GlobalConfig.appDirPath + "database/" + nowDateStr + ".db", () -> Toasty.success(getActivity(),"备份数据成功", Toast.LENGTH_SHORT).show());
+                        FileUtil.copyFileToTarget(getActivity().getDatabasePath("focus.db").getAbsolutePath(),
+                                GlobalConfig.appDirPath + "database/" + nowDateStr + ".db", () -> Toasty.success(getActivity(),"备份数据成功", Toast.LENGTH_SHORT).show());
                     })
                     .show();
             return  false;

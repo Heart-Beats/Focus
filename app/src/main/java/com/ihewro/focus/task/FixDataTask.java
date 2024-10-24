@@ -67,7 +67,7 @@ public class FixDataTask extends AsyncTask<Void,Void,Boolean> {
         List<FeedItem> feedItems = LitePal.where("favorite = ?","1").find(FeedItem.class);//所有收藏的文章
         for (FeedItem feedItem: feedItems){
             Collection collection = new Collection(feedItem.getTitle(), feedItem.getFeedName(), feedItem.getDate(), feedItem.getSummary(),
-                    feedItem.getContent(), feedItem.getUrl(), feedItem.getGuid(), Collection.FEED_ITEM, DateUtil.getNowDateRFCInt());
+                    feedItem.getContent(), feedItem.getUrl(), feedItem.getFeedUrl(), feedItem.getGuid(), Collection.FEED_ITEM, DateUtil.getNowDateRFCInt());
 
             try {
                 collection.saveThrows();
