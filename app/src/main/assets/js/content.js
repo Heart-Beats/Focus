@@ -1,60 +1,23 @@
 //初始化需要显示的图片，并且指定显示的位置
 window.addEventListener("load", showPage);
 
-function clickLink() {
-    var objs = document.getElementsByTagName("a");
-    for (var i = 0; i < objs.length; i++) {
-        objs[i].onclick = function () {
-            window.imagelistener.openUrl(this.href);
-            return false;
-            //通过js代码找到标签为img的代码块，设置点击的监听方法与本地的openImage方法进行连接
-        }
-    }
-}
+function showPage() {
+    imagesLoad();
 
-function clickImage() {
-
-    var objs = document.getElementsByTagName("img");
-    for (var i = 0; i < objs.length; i++) {
-        touchImage(objs[i]);
-        console.log("okle!");
-    }
-}
-
-
-function touchImage(btn) {
-    btn.addEventListener("click", SinglePress, false);
-    function SinglePress() {
-        //如果是加载失败的情况下，点击则重新加载
-        var status = btn.getAttribute("load");
-        var imageUrl;
-        if (status === "fail") {
-            //点击重新加载
-            singleImageLoad(btn, btn.id);
-            imageUrl = btn.getAttribute("data");
-        }else if (status == "loading"){
-            imageUrl = btn.getAttribute("data");
-        }else{
-            imageUrl = btn.src;
-
-        }
-
-
-        //打开图片弹窗
-        window.imagelistener.longClickImage(imageUrl);
-
-    }
+    clickLink();
 }
 
 function imagesLoad() {
     var imglist = document.getElementsByTagName('img');
-    for (i = 0; i < imglist.length; i++) {
-        singleImageLoad(imglist[i], "img0" + i);
 
+    var imgSrcs = [];  // 创建图片链接列表
+
+    for (i = 0; i < imglist.length; i++) {
+        singleImageLoad(imglist[i], "img0" + i,imgSrcs);
     }
 }
 
-function singleImageLoad(object, id) {
+function singleImageLoad(object, id,imgSrcs) {
     object.id = id;
     object.style.cssText = "margin: 0 auto;";
 
@@ -63,19 +26,19 @@ function singleImageLoad(object, id) {
 
     object.setAttribute("load", "loading");
 
-    Imagess(object.getAttribute("data"), object.id, checkimg);
+    Imagess(object.getAttribute("data"), object.id, checkimg, imgSrcs);
 }
 
 
 //判断是否加载完成
-function Imagess(url, imgid, callback) {
+function Imagess(url, imgid, callback,imgSrcs) {
     console.log("开始加载" + url);
     var img = new Image();
     var val = url;
     var load;
     img.onload = function () {
         if (img.complete === true) {
-            callback(img, imgid);
+            callback(img, imgid,imgSrcs);
         }
     };
 
@@ -90,21 +53,53 @@ function Imagess(url, imgid, callback) {
 }
 
 //显示图片
-function checkimg(obj, imgid) {
+function checkimg(obj, imgid,imgSrcs) {
     status = document.getElementById(imgid).getAttribute("load");
     if (status !== "fail") {
         document.getElementById(imgid).setAttribute("load", "success");
     }
-    document.getElementById(imgid).src = obj.src;
+    var img=document.getElementById(imgid)
+    img.src = obj.src;
+
+    imgSrcs.push(obj.src);
+
+    let index = parseInt(imgid.replace("img0", ""), 10);  // 去掉 "img" 前缀并转换为整数
+    touchImage(img,index,imgSrcs);
 }
 
-function showPage() {
-    imagesLoad();
-
-    clickLink();
-    clickImage();
+function clickLink() {
+    var objs = document.getElementsByTagName("a");
+    for (var i = 0; i < objs.length; i++) {
+        objs[i].onclick = function () {
+            window.imageListener.openUrl(this.href);
+            return false;
+            //通过js代码找到标签为img的代码块，设置点击的监听方法与本地的openImage方法进行连接
+        }
+    }
 }
 
+function touchImage(btn, i, imgSrcs) {
+   // 点击事件
+   btn.onclick = function() {
+       //如果是加载失败的情况下，点击则重新加载
+       var status = btn.getAttribute("load");
+       var imageUrl;
+       if (status === "fail") {
+           //点击重新加载
+           singleImageLoad(btn, btn.id);
+           imageUrl = btn.getAttribute("data");
+       }else if (status == "loading"){
+           imageUrl = btn.getAttribute("data");
+       }else{
+           imageUrl = btn.src;
 
+       }
+       window.imageListener.onImageClick(i, JSON.stringify(imgSrcs));
+   };
 
-
+   // 长按事件
+   btn.oncontextmenu = function() {
+       window.imageListener.onImageLongPress(this.src);
+       return false;  // 阻止默认长按菜单弹出
+   };
+}

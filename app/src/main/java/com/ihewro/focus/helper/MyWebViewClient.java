@@ -6,7 +6,6 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 import com.blankj.ALog;
 import com.ihewro.focus.util.StringUtil;
@@ -57,7 +56,6 @@ public class MyWebViewClient extends com.just.agentweb.WebViewClient {
     }
 
     private void addClickListener(WebView webView) {
-
     }
 
 
@@ -69,7 +67,7 @@ public class MyWebViewClient extends com.just.agentweb.WebViewClient {
         AssetManager am = context.getAssets();
        if (url.equals("https://focus.com/content.css")){
            try {
-               InputStream is = context.getAssets().open("css/" + "webview.css");
+               InputStream is = am.open("css/" + "webview.css");
 //               ALog.i("shouldInterceptRequest", "use offline resource for: " + url);
                return new WebResourceResponse("text/css", "UTF-8", is);
            } catch (IOException e) {
@@ -77,7 +75,7 @@ public class MyWebViewClient extends com.just.agentweb.WebViewClient {
            }
        }else if (url.equals("https://focus.com/content.js")){
            try {
-               InputStream is = context.getAssets().open("js/" + "content.js");
+               InputStream is = am.open("js/" + "content.js");
                ALog.i("shouldInterceptRequest", "use offline resource for: " + url);
                return new WebResourceResponse("application/javascript", "UTF-8", is);
            } catch (IOException e) {

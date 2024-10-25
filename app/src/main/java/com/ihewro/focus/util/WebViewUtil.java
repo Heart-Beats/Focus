@@ -6,35 +6,24 @@ import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
 import android.support.customtabs.CustomTabsIntent;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.LinearLayout;
 
 import com.blankj.ALog;
-import com.ihewro.focus.GlobalConfig;
-import com.ihewro.focus.R;
-import com.ihewro.focus.activity.PostDetailActivity;
-import com.ihewro.focus.activity.StarActivity;
 import com.ihewro.focus.bean.PostSetting;
 import com.ihewro.focus.helper.CustomTabActivityHelper;
 import com.ihewro.focus.helper.MyWebViewClient;
 import com.ihewro.focus.helper.WebviewFallback;
-import com.ihewro.focus.view.WebContentLayout;
-import com.just.agentweb.AgentWeb;
-import com.just.agentweb.DefaultWebClient;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import okhttp3.HttpUrl;
 import skin.support.utils.SkinPreference;
 
 /**
@@ -100,7 +89,7 @@ public class WebViewUtil {
         webView.setHorizontalScrollBarEnabled(false);
 
         String[] imageUrls = {};
-        webView.addJavascriptInterface(new MJavascriptInterface(context,imageUrls,webView), "imagelistener");
+        webView.addJavascriptInterface(new MJavascriptInterface(context,imageUrls,webView), "imageListener");
         webView.setWebViewClient(new MyWebViewClient(context,url));
 
 

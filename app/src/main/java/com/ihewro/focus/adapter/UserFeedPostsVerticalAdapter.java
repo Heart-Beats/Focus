@@ -1,13 +1,11 @@
 package com.ihewro.focus.adapter;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.recyclerview.extensions.AsyncListDiffer;
 import android.support.v7.util.DiffUtil;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.ImageView;
 
 import com.blankj.ALog;
 import com.chad.library.adapter.base.BaseItemDraggableAdapter;
@@ -22,17 +20,15 @@ import com.ihewro.focus.bean.UserPreference;
 import com.ihewro.focus.callback.UICallback;
 import com.ihewro.focus.decoration.SuspensionDecoration;
 import com.ihewro.focus.helper.ItemTouchHelperAdapter;
-import com.ihewro.focus.helper.ItemTouchHelperViewHolder;
 import com.ihewro.focus.helper.MyViewHolder;
 import com.ihewro.focus.helper.SimpleItemTouchHelperCallback;
 import com.ihewro.focus.util.DataUtil;
 import com.ihewro.focus.util.DateUtil;
-import com.ihewro.focus.util.ImageLoaderManager;
+import com.ihewro.focus.util.ImageLoadUtil;
 import com.ihewro.focus.util.RSSUtil;
 import com.ihewro.focus.util.StringUtil;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.greenrobot.eventbus.EventBus;
 import org.litepal.crud.callback.SaveCallback;
@@ -169,8 +165,7 @@ public class UserFeedPostsVerticalAdapter extends BaseItemDraggableAdapter<FeedI
 
                 helper.getView(R.id.post_pic).setVisibility(View.VISIBLE);
 
-                ImageLoader.getInstance().displayImage(StringUtil.trim(imageUrl), (ImageView) helper.getView(R.id.post_pic),ImageLoaderManager.getSubsciptionIconOptions(activity));
-
+                ImageLoadUtil.displayImage(helper.getView(R.id.post_pic), StringUtil.trim(imageUrl));
             }else {
                 helper.getView(R.id.post_pic).setVisibility(View.GONE);
             }

@@ -8,7 +8,7 @@ import com.ihewro.focus.activity.MainActivity;
 import com.ihewro.focus.bean.UserPreference;
 import com.ihewro.focus.db.MyDatabaseListener;
 import com.ihewro.focus.helper.BlockDetectByPrinter;
-import com.ihewro.focus.util.ImageLoaderManager;
+import com.ihewro.focus.util.ImageLoadUtil;
 import com.scwang.smartrefresh.header.MaterialHeader;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.constant.SpinnerStyle;
@@ -89,7 +89,7 @@ public class MyApplication extends LitePalApplication {
         initErrorHandle();
 
         BlockDetectByPrinter.start();
-        ImageLoaderManager.init(this);
+        ImageLoadUtil.init(this);
 
         Toasty.Config.getInstance()
                 .allowQueue(true) // optional (prevents several Toastys from queuing)

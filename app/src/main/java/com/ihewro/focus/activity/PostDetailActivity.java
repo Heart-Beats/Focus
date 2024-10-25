@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -21,10 +20,8 @@ import android.view.View;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.blankj.ALog;
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.ihewro.focus.GlobalConfig;
 import com.ihewro.focus.R;
 import com.ihewro.focus.adapter.PostDetailListPagerAdapter;
@@ -43,7 +40,6 @@ import com.ihewro.focus.util.UIUtil;
 import com.ihewro.focus.util.WebViewUtil;
 
 import org.greenrobot.eventbus.EventBus;
-import org.litepal.crud.callback.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -197,59 +193,47 @@ public class PostDetailActivity extends BackActivity {
                 adapter.setData(feedItemList);
 
 
-                UIUtil.runOnUiThread(PostDetailActivity.this, new Runnable() {
-                    @Override
-                    public void run() {
-                        viewPager.setAdapter(adapter);
+                UIUtil.runOnUiThread(PostDetailActivity.this, () -> {
+                    viewPager.setAdapter(adapter);
 
-                        final float PARALLAX_COEFFICIENT = 0.5f;
-                        final float DISTANCE_COEFFICIENT = 0.1f;
+                    final float PARALLAX_COEFFICIENT = 0.5f;
+                    final float DISTANCE_COEFFICIENT = 0.1f;
 
-                        viewPager.setPageTransformer(true, new ParallaxTransformer(adapter,null,PARALLAX_COEFFICIENT, DISTANCE_COEFFICIENT));
+                    viewPager.setPageTransformer(true, new ParallaxTransformer(adapter, null, PARALLAX_COEFFICIENT, DISTANCE_COEFFICIENT));
 
-                        //移动到当前文章的位置
-                        viewPager.setCurrentItem(mIndex);
+                    // 移动到当前文章的位置
+                    viewPager.setCurrentItem(mIndex);
 
 
-                        ALog.d("首次加载");
-                        setLikeButton();
-                        setCurrentItemStatus();
-                        initPostClickListener();
+                    ALog.d("首次加载");
+                    setLikeButton();
+                    setCurrentItemStatus();
+                    initPostClickListener();
 
-                        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-                            @Override
-                            public void onPageScrolled(int i, float v, int i1) {
+                    viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+                        @Override
+                        public void onPageScrolled(int i, float v, int i1) {
 
-                            }
-
-                            @Override
-                            public void onPageSelected(int i) {
-                                ALog.d("onPageSelected");
-                                mIndex = i;
-                                //UI修改
-                                starIconReady = false;
-                                initData();
-                                setLikeButton();
-                                //修改顶部导航栏的收藏状态
-                                setCurrentItemStatus();
-                                initPostClickListener();
-                            }
-
-                            @Override
-                            public void onPageScrollStateChanged(int i) {
-
-                            }
-                        });
-
-
-
-                        if (notReadNum <= 0) {
-                            toolbar.setTitle("");
-                        } else {
-                            toolbar.setTitle(notReadNum + "");
                         }
 
-                    }
+                        @Override
+                        public void onPageSelected(int i) {
+                            ALog.d("onPageSelected");
+                            mIndex = i;
+                            // UI修改
+                            starIconReady = false;
+                            initData();
+                            setLikeButton();
+                            // 修改顶部导航栏的收藏状态
+                            setCurrentItemStatus();
+                            initPostClickListener();
+                        }
+
+                        @Override
+                        public void onPageScrollStateChanged(int i) {
+
+                        }
+                    });
                 });
             }
         }).start();
@@ -260,18 +244,18 @@ public class PostDetailActivity extends BackActivity {
      * 为什么不在adapter里面写，因为recyclerview有缓存机制，没滑到这个时候就给标记为已读了
      */
     private void setCurrentItemStatus() {
+        // 更新标题栏，指示当前文章位置
+        toolbar.setTitle((mIndex + 1) + "/" + feedItemList.size());
+
         //将该文章标记为已读，并且通知首页修改布局
         if (!currentFeedItem.isRead()) {
             currentFeedItem.setRead(true);
             updateNotReadNum();
-            currentFeedItem.saveAsync().listen(new SaveCallback() {
-                @Override
-                public void onFinish(boolean success) {
-                    if (origin == ORIGIN_SEARCH) {//isUpdateMainReadMark 为false表示不是首页进来的
-                        readList.add(currentFeedItem.getId());
-                    } else if (origin == ORIGIN_MAIN) {
-                        readList.add(mIndex);
-                    }
+            currentFeedItem.saveAsync().listen(success -> {
+                if (origin == ORIGIN_SEARCH) {//isUpdateMainReadMark 为false表示不是首页进来的
+                    readList.add(currentFeedItem.getId());
+                } else if (origin == ORIGIN_MAIN) {
+                    readList.add(mIndex);
                 }
             });
         }
@@ -310,32 +294,22 @@ public class PostDetailActivity extends BackActivity {
 
 
         if (UserPreference.queryValueByKey(UserPreference.notToTop, "0").equals("0")) {
-            toolbar.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    return gestureDetector1.onTouchEvent(motionEvent);
-                }
-            });
+            toolbar.setOnTouchListener((view, motionEvent) -> gestureDetector1.onTouchEvent(motionEvent));
         }
 
 
         if (UserPreference.queryValueByKey(UserPreference.notStar, "0").equals("0")) {
             //第一篇文章进入的时候这个view为null，我也不知道为什么！
-            new Handler().postDelayed(new Runnable() {//做一个延迟绑定
-                @Override
-                public void run() {
+            //做一个延迟绑定
+            new Handler().postDelayed(() -> {
 
-                    View content = adapter.getViewByPosition(mIndex, R.id.post_content);
-                    if (content != null) {
-                        content.setOnTouchListener(new View.OnTouchListener() {
-                            @Override
-                            public boolean onTouch(View v, MotionEvent event) {
+                View content = adapter.getViewByPosition(mIndex, R.id.post_content);
+                if (content != null) {
+                    content.setOnTouchListener((v, event) -> {
 //                                ALog.d("什么情况？？双击事件");
 
-                                return gestureDetector.onTouchEvent(event);
-                            }
-                        });
-                    }
+                        return gestureDetector.onTouchEvent(event);
+                    });
                 }
             }, 500);
 
@@ -385,15 +359,12 @@ public class PostDetailActivity extends BackActivity {
                         .customView(R.layout.read_setting, true)
                         .neutralText("重置")
                         .positiveText("确定")
-                        .onNeutral(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                //重置设置
-                                UserPreference.updateOrSaveValueByKey(PostSetting.FONT_SIZE, PostSetting.FONT_SIZE_DEFAULT);
-                                UserPreference.updateOrSaveValueByKey(PostSetting.FONT_SPACING, PostSetting.FONT_SPACING_DEFAULT);
-                                UserPreference.updateOrSaveValueByKey(PostSetting.LINE_SPACING, PostSetting.LINE_SPACING_DEFAULT);
+                        .onNeutral((dialog, which) -> {
+                            //重置设置
+                            UserPreference.updateOrSaveValueByKey(PostSetting.FONT_SIZE, PostSetting.FONT_SIZE_DEFAULT);
+                            UserPreference.updateOrSaveValueByKey(PostSetting.FONT_SPACING, PostSetting.FONT_SPACING_DEFAULT);
+                            UserPreference.updateOrSaveValueByKey(PostSetting.LINE_SPACING, PostSetting.LINE_SPACING_DEFAULT);
 //                                adapter.notifyItemChanged(mIndex);
-                            }
                         })
                         .show();
 
@@ -435,14 +406,11 @@ public class PostDetailActivity extends BackActivity {
 
                 setLikeButton();
 
-                currentFeedItem.saveAsync().listen(new SaveCallback() {
-                    @Override
-                    public void onFinish(boolean success) {
-                        if (origin == ORIGIN_SEARCH) {
-                            EventBus.getDefault().post(new EventMessage(EventMessage.MAKE_STAR_STATUS_BY_ID, currentFeedItem.getId(), currentFeedItem.isFavorite()));
-                        } else if (origin == ORIGIN_MAIN) {
-                            EventBus.getDefault().post(new EventMessage(EventMessage.MAKE_STAR_STATUS_BY_INDEX, mIndex, currentFeedItem.isFavorite()));
-                        }
+                currentFeedItem.saveAsync().listen(success -> {
+                    if (origin == ORIGIN_SEARCH) {
+                        EventBus.getDefault().post(new EventMessage(EventMessage.MAKE_STAR_STATUS_BY_ID, currentFeedItem.getId(), currentFeedItem.isFavorite()));
+                    } else if (origin == ORIGIN_MAIN) {
+                        EventBus.getDefault().post(new EventMessage(EventMessage.MAKE_STAR_STATUS_BY_INDEX, mIndex, currentFeedItem.isFavorite()));
                     }
                 });
 
@@ -463,19 +431,16 @@ public class PostDetailActivity extends BackActivity {
             recyclerView.setLayoutManager(linearLayoutManager);
             final ReadBackgroundAdapter adapter1 = new ReadBackgroundAdapter(PostDetailActivity.this, backgroundList);
             adapter1.bindToRecyclerView(recyclerView);
-            adapter1.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
-                @Override
-                public void onItemClick(BaseQuickAdapter adapter2, View view, int position) {
-                    //改变背景颜色，并写入到数据库
-                    UserPreference.updateOrSaveValueByKey(UserPreference.READ_BACKGROUND, String.valueOf(backgroundList.get(position).getColor()));
-                    //刷新页面
-                    //更新UI
-                    adapter1.notifyDataSetChanged();
-                    //修改背景颜色
-                    //根据偏好设置背景颜色修改toolbar的背景颜色
-                    initToolbarColor();
-                    adapter.notifyItemChanged(mIndex);
-                }
+            adapter1.setOnItemClickListener((adapter2, view, position) -> {
+                //改变背景颜色，并写入到数据库
+                UserPreference.updateOrSaveValueByKey(UserPreference.READ_BACKGROUND, String.valueOf(backgroundList.get(position).getColor()));
+                //刷新页面
+                //更新UI
+                adapter1.notifyDataSetChanged();
+                //修改背景颜色
+                //根据偏好设置背景颜色修改toolbar的背景颜色
+                initToolbarColor();
+                adapter.notifyItemChanged(mIndex);
             });
         }
     }
@@ -622,11 +587,11 @@ public class PostDetailActivity extends BackActivity {
         this.notReadNum--;
 
         //UI修改
-        if (notReadNum <= 0) {
-            toolbar.setTitle("");
-        } else {
-            toolbar.setTitle(notReadNum + "");
-        }
+        // if (notReadNum <= 0) {
+        //     toolbar.setTitle("");
+        // } else {
+        //     toolbar.setTitle(notReadNum + "");
+        // }
 
     }
 

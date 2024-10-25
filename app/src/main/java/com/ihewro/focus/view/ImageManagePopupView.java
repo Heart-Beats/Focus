@@ -8,8 +8,7 @@ import android.view.View;
 
 import com.ihewro.focus.bean.Help;
 import com.ihewro.focus.bean.Operation;
-import com.ihewro.focus.callback.OperationCallback;
-import com.ihewro.focus.util.ImageLoaderManager;
+import com.ihewro.focus.util.ImageLoadUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,29 +38,20 @@ public class ImageManagePopupView extends OperationBottomPopupView {
 
     private List<Operation> getFeedFolderOperationList(String imageUrl){
         List<Operation> list = new ArrayList<>();
-        list.add(new Operation(imageUrl, "",null, imageUrl, new OperationCallback() {
-            @Override
-            public void run(Object o) {
+        list.add(new Operation(imageUrl, "",null, imageUrl, o -> {
 
-            }
         }));
 
-        list.add(new Operation("查看图片", "",null, imageUrl, new OperationCallback() {
-            @Override
-            public void run(Object o) {
-                //打开图片弹窗
-                ImageLoaderManager.showSingleImageDialog(getContext(), String.valueOf(o),null);
-            }
+        list.add(new Operation("查看图片", "",null, imageUrl, o -> {
+            //打开图片弹窗
+            ImageLoadUtil.showSingleImageDialog(getContext(), String.valueOf(o),null);
         }));
 
-        list.add(new Operation("拷贝图片地址", "",null, imageUrl, new OperationCallback() {
-            @Override
-            public void run(Object o) {
-                //复制
-                ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                clipboardManager.setPrimaryClip(ClipData.newPlainText(null, String.valueOf(o)));
-                Toasty.success(getContext(),"复制成功").show();
-            }
+        list.add(new Operation("拷贝图片地址", "",null, imageUrl, o -> {
+            //复制
+            ClipboardManager clipboardManager = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            clipboardManager.setPrimaryClip(ClipData.newPlainText(null, String.valueOf(o)));
+            Toasty.success(getContext(),"复制成功").show();
         }));
         return list;
     }

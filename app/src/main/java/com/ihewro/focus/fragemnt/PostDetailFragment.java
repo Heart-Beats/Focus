@@ -3,7 +3,6 @@ package com.ihewro.focus.fragemnt;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
@@ -16,19 +15,15 @@ import android.widget.TextView;
 
 import com.blankj.ALog;
 import com.ihewro.focus.R;
-import com.ihewro.focus.bean.Feed;
 import com.ihewro.focus.bean.FeedItem;
 import com.ihewro.focus.bean.PostSetting;
 import com.ihewro.focus.bean.UserPreference;
 import com.ihewro.focus.util.DateUtil;
 import com.ihewro.focus.util.PostUtil;
 import com.ihewro.focus.util.WebViewUtil;
-import com.ihewro.focus.view.MyScrollView;
 import com.ihewro.focus.view.PostFooter;
 import com.ihewro.focus.view.PostHeader;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
-import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 
 import java.util.regex.Pattern;
 
@@ -146,13 +141,10 @@ public class PostDetailFragment extends Fragment {
         refreshLayout.setEnableRefresh(false);//禁止下拉动作
 
         if (UserPreference.queryValueByKey(UserPreference.notOpenClick,"0").equals("0")){
-            refreshLayout.setOnLoadMoreListener(new OnLoadMoreListener() {
-                @Override
-                public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
-                    refreshLayout.finishLoadMore();
-                    //打开外链
-                    openLink();
-                }
+            refreshLayout.setOnLoadMoreListener(refreshLayout -> {
+                refreshLayout.finishLoadMore();
+                //打开外链
+                openLink();
             });
         }else {
             refreshLayout.setEnableLoadMore(false);

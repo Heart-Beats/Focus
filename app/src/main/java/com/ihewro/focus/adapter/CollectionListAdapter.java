@@ -3,7 +3,6 @@ package com.ihewro.focus.adapter;
 import android.app.Activity;
 import android.support.annotation.Nullable;
 import android.view.View;
-import android.widget.ImageView;
 
 import com.chad.library.adapter.base.BaseMultiItemQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -16,9 +15,8 @@ import com.ihewro.focus.bean.UserPreference;
 import com.ihewro.focus.callback.UICallback;
 import com.ihewro.focus.util.DataUtil;
 import com.ihewro.focus.util.DateUtil;
-import com.ihewro.focus.util.ImageLoaderManager;
+import com.ihewro.focus.util.ImageLoadUtil;
 import com.ihewro.focus.util.StringUtil;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -72,7 +70,7 @@ public class CollectionListAdapter extends BaseMultiItemQuickAdapter<Collection,
                         }
                         helper.getView(R.id.post_pic).setVisibility(View.VISIBLE);
 
-                        ImageLoader.getInstance().displayImage(StringUtil.trim(imageUrl), (ImageView) helper.getView(R.id.post_pic), ImageLoaderManager.getSubsciptionIconOptions(activity));
+                        ImageLoadUtil.displayImage(helper.getView(R.id.post_pic), StringUtil.trim(imageUrl));
 
                     }else {
                         helper.getView(R.id.post_pic).setVisibility(View.GONE);

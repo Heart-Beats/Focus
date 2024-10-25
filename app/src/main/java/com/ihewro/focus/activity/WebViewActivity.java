@@ -5,14 +5,11 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -32,21 +29,14 @@ import com.blankj.ALog;
 import com.google.common.io.ByteStreams;
 import com.ihewro.focus.R;
 import com.ihewro.focus.util.MJavascriptInterface;
-import com.ihewro.focus.view.MyScrollView;
 import com.ihewro.focus.view.WebLayout;
 import com.just.agentweb.AgentWeb;
 import com.just.agentweb.DefaultWebClient;
 import com.just.agentweb.WebChromeClient;
 import com.just.agentweb.WebViewClient;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -114,7 +104,7 @@ public class WebViewActivity extends BackActivity {
             super.onPageStarted(view, url, favicon);
             ((TextView)webLayout.getLayout().findViewById(R.id.header)).setText("网页由 " + url + " 提供");
 
-            injectScriptFile(view, "js/webview.js"); // see below ...
+            injectScriptFile(view, "js/content.js"); // see below ...
 
         }
 
@@ -169,7 +159,7 @@ public class WebViewActivity extends BackActivity {
                 .setWebChromeClient(mWebChromeClient)
                 .setWebViewClient(mWebViewClient)
                 .setWebLayout(webLayout)
-                .addJavascriptInterface("imagelistener",new MJavascriptInterface(WebViewActivity.this,imageUrls,webView))
+                .addJavascriptInterface("imageListener",new MJavascriptInterface(WebViewActivity.this,imageUrls,webView))
                 .setMainFrameErrorView(R.layout.agentweb_error_page, -1)
                 .setSecurityType(AgentWeb.SecurityType.STRICT_CHECK)
                 .setOpenOtherPageWays(DefaultWebClient.OpenOtherPageWays.ASK)//打开其他应用时，弹窗咨询用户是否前往其他应用
