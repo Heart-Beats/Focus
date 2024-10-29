@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  *     version: 1.0
  * </pre>
  */
-public abstract class FeedParser {
+public abstract class FeedParser extends XmlParser {
 
     /**
      * 从字符串解析出feed
@@ -97,46 +97,4 @@ public abstract class FeedParser {
     }
 
     protected abstract Feed transformXml2Feed(XmlPullParser parser, String url) throws XmlPullParserException, IOException;
-
-    public static void skip(XmlPullParser parser) throws IOException, XmlPullParserException {
-        if (parser.getEventType() != XmlPullParser.START_TAG) {
-            throw new IllegalStateException();
-        }
-        int depth = 1;
-        while (depth != 0) {
-            switch (parser.next()) {
-                case XmlPullParser.END_TAG:
-                    depth--;
-                    break;
-                case XmlPullParser.START_TAG:
-                    depth++;
-                    break;
-            }
-        }
-    }
-
-
-    /**
-     * 根据tag名称获取tag内部的数据
-     * @param parser
-     * @param tagName
-     * @return
-     * @throws IOException
-     * @throws XmlPullParserException
-     */
-    protected String readTagByTagName(XmlPullParser parser, String tagName) throws IOException, XmlPullParserException {
-        parser.require(XmlPullParser.START_TAG, null, tagName);
-        String dateStr = readText(parser);
-        parser.require(XmlPullParser.END_TAG, null, tagName);
-        return dateStr;
-    }
-
-    private String readText(XmlPullParser parser) throws IOException, XmlPullParserException {
-        String result = "";
-        if (parser.next() == XmlPullParser.TEXT) {
-            result = parser.getText();
-            parser.nextTag();
-        }
-        return result;
-    }
 }

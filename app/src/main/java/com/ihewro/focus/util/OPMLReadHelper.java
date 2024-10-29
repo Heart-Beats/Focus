@@ -3,7 +3,6 @@ package com.ihewro.focus.util;
 import android.Manifest;
 import android.app.Activity;
 import android.os.Handler;
-import android.util.Xml;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.folderselector.FileChooserDialog;
@@ -14,24 +13,19 @@ import com.ihewro.focus.activity.FeedManageActivity;
 import com.ihewro.focus.bean.EventMessage;
 import com.ihewro.focus.bean.Feed;
 import com.ihewro.focus.bean.FeedFolder;
+import com.ihewro.focus.parser.OPMLParser;
 
 import org.greenrobot.eventbus.EventBus;
 import org.litepal.LitePal;
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import es.dmoral.toasty.Toasty;
 import pub.devrel.easypermissions.EasyPermissions;
 import pub.devrel.easypermissions.PermissionRequest;
-
-import static com.ihewro.focus.parser.FeedParser.skip;
 
 /**
  * <pre>
@@ -46,10 +40,6 @@ import static com.ihewro.focus.parser.FeedParser.skip;
 public class OPMLReadHelper {
 
     public static final int RQUEST_STORAGE_READ = 8;
-    private static final String OPML = "opml";
-    private static final String BODY = "body";
-    private static final String OUTLINE = "outline";
-    private static OPMLReadHelper sInstance;
 
     private Activity activity;
 
@@ -91,12 +81,7 @@ public class OPMLReadHelper {
             return;
         }
         try {
-            FileInputStream fis = new FileInputStream(file);
-            XmlPullParser parser = Xml.newPullParser();
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(fis, null);
-            parser.nextTag();
-            List<FeedFolder> feedFolders = readOPML(parser);
+            List<FeedFolder> feedFolders = OPMLParser.INSTANCE.readOPML(filePath);
             //保存到指定的文件夹中
             saveFeedToFeedFolder(feedFolders);
 
@@ -107,117 +92,6 @@ public class OPMLReadHelper {
         } catch (IOException e) {
             Toast.makeText(activity, "文件导入失败", Toast.LENGTH_SHORT).show();
         }
-    }
-
-    private List<FeedFolder> readOPML(XmlPullParser parser) throws IOException, XmlPullParserException {
-        List<FeedFolder>feedFolders = new ArrayList<>();
-        parser.require(XmlPullParser.START_TAG, null, OPML);
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.getEventType() != XmlPullParser.START_TAG) {
-                continue;
-            }
-            String name = parser.getName();
-            // Starts by looking for the entry tag
-            if (name.equals(BODY)) {
-                feedFolders.addAll(readBody(parser));
-            } else {
-                skip(parser);
-            }
-        }
-        return feedFolders;
-    }
-
-    private List<FeedFolder> readBody(XmlPullParser parser) throws IOException, XmlPullParserException {
-        List<FeedFolder> feedFolders = new ArrayList<>();
-        parser.require(XmlPullParser.START_TAG, null, BODY);
-
-        while (parser.next() != XmlPullParser.END_TAG) {
-            if (parser.getEventType() != XmlPullParser.START_TAG) {
-                continue;
-            }
-            String name = parser.getName();
-            // Starts by looking for the entry tag
-            if (name.equals(OUTLINE)) {
-                String text = parser.getAttributeValue(null, "text");
-                feedFolders.add(readOutline(parser,text));
-            } else {
-                skip(parser);
-            }
-        }
-        return feedFolders;
-    }
-
-    private FeedFolder readOutline(XmlPullParser parser, String feedFolderName) throws IOException, XmlPullParserException {
-
-        FeedFolder feedFolder = new FeedFolder(feedFolderName);
-
-        String type = parser.getAttributeValue(null, "type");
-        if (Objects.equals(type, "rss")) {//只有一个订阅源，且没有分组
-            feedFolder.getFeedList().add(parseFeed(parser,feedFolderName));
-            parser.nextTag();
-
-        } else {//是一个文件夹
-            //我们只处理二级目录
-            feedFolder.getFeedList().addAll(readFeedFolderOutLine(parser,feedFolderName));
-
-        }
-        return feedFolder;
-    }
-
-
-    /**
-     * 读取文件夹下的所有feed
-     * @param parser
-     * @param feedFolderName
-     * @return
-     * @throws IOException
-     * @throws XmlPullParserException
-     */
-    private List<Feed> readFeedFolderOutLine (XmlPullParser parser, String feedFolderName) throws IOException, XmlPullParserException {
-        List<Feed> feedList = new ArrayList<>();
-
-        String type = parser.getAttributeValue(null, "type");
-        if (Objects.equals(type, "rss")) {
-            feedList.add(parseFeed(parser, feedFolderName));
-            parser.nextTag();
-        } else {
-            parser.require(XmlPullParser.START_TAG, null, OUTLINE);
-            while (parser.next() != XmlPullParser.END_TAG) {
-                if (parser.getEventType() != XmlPullParser.START_TAG) {
-                    continue;
-                }
-                String name = parser.getName();
-                if (name.equals(OUTLINE)) {
-                    feedList.addAll(readFeedFolderOutLine(parser, feedFolderName));
-                } else {
-                    skip(parser);
-                }
-            }
-        }
-        return feedList;
-    }
-
-    private Feed parseFeed(XmlPullParser parser,String feedFolderName) {
-        String text = parser.getAttributeValue(null, "text");
-        String title = parser.getAttributeValue(null, "title");
-        String xmlUrl = parser.getAttributeValue(null, "xmlUrl");
-        String htmlUrl = parser.getAttributeValue(null, "htmlUrl");
-
-
-        // may be null
-        String description = parser.getAttributeValue(null, "description");
-
-        String iconUrl;
-        if (!Strings.isNullOrEmpty(htmlUrl)) {
-            if (htmlUrl.endsWith("/")) {
-                htmlUrl = htmlUrl.substring(0, htmlUrl.length() - 2);
-            }
-        }
-        iconUrl = htmlUrl + "/favicon.ico";
-
-        Feed feed = new Feed(title,xmlUrl,description, Feed.DEFAULT_TIMEOUT);
-
-        return feed;
     }
 
     private void saveFeedToFeedFolder(final List<FeedFolder> feedFolders){
@@ -243,13 +117,7 @@ public class OPMLReadHelper {
                 feed.save();
             }
 
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    EventBus.getDefault().post(new EventMessage(EventMessage.IMPORT_OPML_FEED));
-                }
-            },500);
-
+            new Handler().postDelayed(() -> EventBus.getDefault().post(new EventMessage(EventMessage.IMPORT_OPML_FEED)), 500);
         }
 
         Toasty.success(activity,"导入成功！").show();
