@@ -12,7 +12,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,7 +38,7 @@ public abstract class FeedParser extends XmlParser {
         }
 
         //获取xml文件的编码
-        String encode = "UTF-8";//默认编码
+        String encode = StandardCharsets.UTF_8.toString();// 默认编码
         String originCode = "ISO-8859-1";
         String temp = xmlStr.substring(0,100);
         Pattern p = Pattern.compile("encoding=\"(.*?)\"");
@@ -51,11 +51,11 @@ public abstract class FeedParser extends XmlParser {
             ALog.d("编码："+encode);
         }//否则就是文件没有标明编码格式，按照utf-8进行解码
 
-
-        //如果文件没有乱码，则不需要转换
-        if (!Charset.forName("GBK").newEncoder().canEncode(xmlStr.substring(0, Math.min(xmlStr.length(), 3000)))) {
-            xmlStr = new String(xmlStr.getBytes(originCode),encode);
-        }else {
+        if (!encode.equals(StandardCharsets.UTF_8.toString())) {
+            ALog.d("Xml 文件非 UTF_8 编码，转换为 UTF_8 编码");
+            xmlStr = new String(xmlStr.getBytes(encode), StandardCharsets.UTF_8);
+        } else {
+            ALog.d("Xml 文件为 UTF_8 编码，无需进行转换");
         }
 
         return beginParseStr2Feed(xmlStr,url);

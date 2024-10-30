@@ -61,28 +61,27 @@ object FeedHelper {
 			ALog.d("本地获取到的 feedItem 总数：" + localFeedItems.size)
 
 			// 给feed下所有feedItem绑定feed信息
-			feed.feedItemList.forEach {
+			feed.feedItemList.forEach { feedItem ->
 				val optionalFeedItem =
-					localFeedItems.stream().filter { localFeedItem: FeedItem -> localFeedItem.guid == it.guid }
-						.findFirst()
+					localFeedItems.stream().filter { localFeedItem -> localFeedItem.guid == feedItem.guid }.findFirst()
 
 				if (!optionalFeedItem.isPresent) {
 					// 本地数据库中不存在当前feed时， 当前feed存储数据库
-					it.feedName = feed.name
-					it.feedId = feedId
-					it.saveThrows()
+					feedItem.feedName = feed.name
+					feedItem.feedId = feedId
+					feedItem.saveThrows()
 				} else {
 					// 当前feedItem 已经存在数据库中了，此时要对feedItem进行状态字段的覆盖
 					val localFeed = optionalFeedItem.get()
-					if (it.date != 0L) {
+					if (feedItem.date != 0L) {
 						// 有的feedItem 源地址中 没有时间，所以要恢复第一次加入数据库中的时间, 只有有时间的才去更新
-						localFeed.date = it.date
+						localFeed.date = feedItem.date
 					}
-					localFeed.content = it.content
-					localFeed.title = it.title
-					localFeed.summary = it.summary
+					localFeed.content = feedItem.content
+					localFeed.title = feedItem.title
+					localFeed.summary = feedItem.summary
 					if (UserPreference.queryValueByKey(UserPreference.AUTO_SET_FEED_NAME, "0") == "1") { // 没有选择，自动设置会手动设置name
-						localFeed.feedName = it.feedName
+						localFeed.feedName = feed.name
 					}
 					localFeed.saveThrows()
 				}

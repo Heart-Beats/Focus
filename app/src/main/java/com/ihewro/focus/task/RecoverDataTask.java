@@ -286,7 +286,7 @@ public class RecoverDataTask extends AsyncTask<Void,Void,Boolean> {
                         Long date = collectionCur.getLong(collectionCur.getColumnIndex("date"));
                         String summary = collectionCur.getString(collectionCur.getColumnIndex("summary"));
                         String content = collectionCur.getString(collectionCur.getColumnIndex("content"));
-                        String feedName = collectionCur.getString(collectionCur.getColumnIndex("feedItemname"));
+                        String feedName = collectionCur.getString(collectionCur.getColumnIndex("feedName"));
                         String url2 = collectionCur.getString(collectionCur.getColumnIndex("url"));
                         String feedUrl = collectionCur.getString(collectionCur.getColumnIndex("feedurl"));
                         String guid = collectionCur.getString(collectionCur.getColumnIndex("guid"));
