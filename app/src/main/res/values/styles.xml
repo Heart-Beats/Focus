@@ -1,15 +1,10 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme.DayNight" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="AppTheme.DayNight" parent="AppTheme">
         <item name="android:windowBackground">@color/colorPrimary</item>
         <item name="popupMenuStyle">@style/ThemeOverlay.AppCompat.Light</item>
 
         <!--背景透明-->
-
         <!--<item name="android:windowIsTranslucent">true</item>-->
 
         <!--抽屉的风格-->
@@ -24,7 +19,7 @@
 
         <!--<item name="material_drawer_divider">#eeeeee</item>-->
 
-        <item name="md_color_button_text">@color/colorPrimaryDark_night</item>
+        <!--<item name="md_color_button_text">@color/colorPrimaryDark_night</item>-->
         <item name="md_corner_radius">16dp</item>
 
     </style>
@@ -32,10 +27,7 @@
 
 
     <!--再写一个是为了左侧边栏-->
-    <style name="AppTheme.Dark" parent="MaterialDrawerTheme">
-        <item name="colorPrimary">@color/colorPrimary_night</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark_night</item>
-        <item name="colorAccent">@color/colorAccent_night</item>
+    <style name="AppTheme.Dark" parent="AppTheme.Night">
         <item name="android:windowBackground">@color/colorPrimary_night</item>
         <item name="popupMenuStyle">@style/ThemeOverlay.AppCompat.Dark</item>
 
@@ -55,7 +47,7 @@
 
         <item name="material_drawer_divider">@color/divider_night</item>
 
-        <item name="md_color_button_text">@color/colorPrimary</item>
+        <!--<item name="md_color_button_text">@color/colorPrimary</item>-->
         <item name="md_corner_radius">16dp</item>
     </style>
 
@@ -74,7 +66,4 @@
         <item name="android:textColor">@color/text_secondary_dark</item>
 
     </style>
-
-
-
 </resources>
