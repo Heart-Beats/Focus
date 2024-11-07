@@ -1,13 +1,11 @@
 package com.ihewro.focus.view;
 
-import android.animation.ValueAnimator;
-import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
-import android.view.animation.LinearInterpolator;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.ihewro.focus.R;
 import com.lxj.xpopup.impl.PartShadowPopupView;

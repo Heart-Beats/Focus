@@ -1,17 +1,14 @@
 package com.ihewro.focus.view;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.ihewro.focus.R;
-import com.ihewro.focus.adapter.FeedFolderListAdapter;
 import com.ihewro.focus.adapter.FeedFolderListMainAdapter;
-import com.ihewro.focus.bean.Feed;
 import com.ihewro.focus.bean.FeedFolder;
 import com.lxj.xpopup.impl.PartShadowPopupView;
 

@@ -11,10 +11,11 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.core.app.NotificationCompat;
 
 import com.blankj.ALog;
 import com.ihewro.focus.MyApplication;

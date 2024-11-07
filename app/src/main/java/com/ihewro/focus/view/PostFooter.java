@@ -1,26 +1,23 @@
 package com.ihewro.focus.view;
 
 import android.content.Context;
-import android.support.annotation.ColorInt;
-import android.support.annotation.NonNull;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import com.ihewro.focus.R;
 import com.ihewro.focus.bean.FeedItem;
-import com.scwang.smartrefresh.header.internal.pathview.PathsView;
 import com.scwang.smartrefresh.layout.api.RefreshFooter;
-import com.scwang.smartrefresh.layout.api.RefreshHeader;
 import com.scwang.smartrefresh.layout.api.RefreshKernel;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.constant.RefreshState;
 import com.scwang.smartrefresh.layout.constant.SpinnerStyle;
-import com.scwang.smartrefresh.layout.footer.ClassicsFooter;
 import com.scwang.smartrefresh.layout.internal.ProgressDrawable;
-import com.scwang.smartrefresh.layout.util.DensityUtil;
+import com.scwang.smartrefresh.layout.util.SmartUtil;
 
 /**
  * <pre>
@@ -54,11 +51,11 @@ public class PostFooter extends LinearLayout implements RefreshFooter {
         mProgressView = new ImageView(context);
         mProgressView.setImageDrawable(mProgressDrawable);
         mArrowView.setImageResource(R.drawable.ic_arrow_downward_black_24dp);
-        addView(mProgressView, DensityUtil.dp2px(20), DensityUtil.dp2px(20));
-        addView(mArrowView, DensityUtil.dp2px(20), DensityUtil.dp2px(20));
-        addView(new View(context), DensityUtil.dp2px(20), DensityUtil.dp2px(20));
+        addView(mProgressView, SmartUtil.dp2px(20), SmartUtil.dp2px(20));
+        addView(mArrowView, SmartUtil.dp2px(20), SmartUtil.dp2px(20));
+        addView(new View(context), SmartUtil.dp2px(20), SmartUtil.dp2px(20));
         addView(mHeaderText, LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        setMinimumHeight(DensityUtil.dp2px(60));
+        setMinimumHeight(SmartUtil.dp2px(60));
     }
 
     @Override

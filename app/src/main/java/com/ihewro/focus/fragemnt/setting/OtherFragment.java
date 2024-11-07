@@ -1,23 +1,16 @@
 package com.ihewro.focus.fragemnt.setting;
 
 
+import android.app.Fragment;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Bundle;
-import android.app.Fragment;
-import android.support.v7.preference.Preference;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.canking.minipay.Config;
-import com.canking.minipay.MiniPayUtils;
+import androidx.preference.Preference;
+
 import com.ihewro.focus.R;
 import com.ihewro.focus.activity.AboutActivity;
-import com.ihewro.focus.activity.MainActivity;
 import com.ihewro.focus.util.UIUtil;
 
 import es.dmoral.toasty.Toasty;
@@ -53,7 +46,7 @@ public class OtherFragment extends SettingFragment {
         donate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                MiniPayUtils.setupPay(getActivity(), new Config.Builder("FKX07840DBMQMUHP92W1DD", R.drawable.alipay, R.drawable.wechatpay).build());
+                // MiniPayUtils.setupPay(getActivity(), new Config.Builder("FKX07840DBMQMUHP92W1DD", R.drawable.alipay, R.drawable.wechatpay).build());
                 return false;
             }
         });

@@ -3,14 +3,13 @@ package com.ihewro.focus.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.AppBarLayout;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.ihewro.focus.R;
+import androidx.appcompat.widget.Toolbar;
 
-import org.greenrobot.eventbus.EventBus;
+import com.google.android.material.appbar.AppBarLayout;
+import com.ihewro.focus.R;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

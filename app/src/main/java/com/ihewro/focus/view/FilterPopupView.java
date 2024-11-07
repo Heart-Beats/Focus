@@ -1,12 +1,12 @@
 package com.ihewro.focus.view;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.ihewro.focus.R;
 import com.ihewro.focus.bean.UserPreference;
@@ -91,18 +91,18 @@ public class FilterPopupView extends DrawerPopupView {
         //初始化颜色
 
         if (SkinPreference.getInstance().getSkinName().equals("night")){
-            normalTextColor = getResources().getColor(R.color.material_drawer_dark_selected_text);
-            normalBGColor = getResources().getColor(R.color.material_drawer_dark_selected);
+            normalTextColor = getResources().getColor(com.mikepenz.materialdrawer.R.color.material_drawer_dark_selected_text);
+            normalBGColor = getResources().getColor(com.mikepenz.materialdrawer.R.color.material_drawer_dark_selected);
 
-            highlightTextColor = getResources().getColor(R.color.material_drawer_dark_primary_text);
-            highlightBGColor = getResources().getColor(R.color.material_drawer_dark_background);
+            highlightTextColor = getResources().getColor(com.mikepenz.materialdrawer.R.color.material_drawer_dark_primary_text);
+            highlightBGColor = getResources().getColor(com.mikepenz.materialdrawer.R.color.material_drawer_dark_background);
 
         }else {
             normalTextColor = getResources().getColor(R.color.colorAccent);
-            normalBGColor = getResources().getColor(R.color.material_drawer_selected);
+            normalBGColor = getResources().getColor(com.mikepenz.materialdrawer.R.color.material_drawer_selected);
 
-            highlightTextColor = getResources().getColor(R.color.material_drawer_primary_text);
-            highlightBGColor = getResources().getColor(R.color.material_drawer_background);
+            highlightTextColor = getResources().getColor(com.mikepenz.materialdrawer.R.color.material_drawer_primary_text);
+            highlightBGColor = getResources().getColor(com.mikepenz.materialdrawer.R.color.material_drawer_background);
         }
 
         //初始化选项

@@ -1,11 +1,12 @@
 package com.ihewro.focus.adapter;
 
 import android.app.Activity;
-import android.support.annotation.Nullable;
-import android.support.v7.recyclerview.extensions.AsyncListDiffer;
-import android.support.v7.util.DiffUtil;
 import android.text.TextUtils;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.AsyncListDiffer;
+import androidx.recyclerview.widget.DiffUtil;
 
 import com.blankj.ALog;
 import com.chad.library.adapter.base.BaseItemDraggableAdapter;
@@ -28,7 +29,6 @@ import com.ihewro.focus.util.ImageLoadUtil;
 import com.ihewro.focus.util.RSSUtil;
 import com.ihewro.focus.util.StringUtil;
 import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.interfaces.OnSelectListener;
 
 import org.greenrobot.eventbus.EventBus;
 import org.litepal.crud.callback.SaveCallback;
@@ -227,96 +227,77 @@ public class UserFeedPostsVerticalAdapter extends BaseItemDraggableAdapter<FeedI
 
 
 
-        helper.getView(R.id.content_container).setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
+        helper.getView(R.id.content_container).setOnLongClickListener(v -> {
+            FeedItem.clickWhenNotFavorite(activity, item, new UICallback() {
+                @Override
+                public void doUIWithFlag(final boolean flag) {
 
-                FeedItem.clickWhenNotFavorite(activity, item, new UICallback() {
-                    @Override
-                    public void doUIWithFlag(final boolean flag) {
+                    //保存到数据库
+                    item.setFavorite(flag);
+                    item.saveAsync().listen(success -> {
+                        //通知
+                        if (flag){
+                            Toasty.success(activity,"收藏成功").show();
+                        }else {
+                            Toasty.success(activity,"取消收藏成功").show();
+                        }
+                        notifyItemChanged(helper.getAdapterPosition());
+                    });
 
-                        //保存到数据库
-                        item.setFavorite(flag);
-                        item.saveAsync().listen(new SaveCallback() {
-                            @Override
-                            public void onFinish(boolean success) {
-                                //通知
-                                if (flag){
-                                    Toasty.success(activity,"收藏成功").show();
-                                }else {
-                                    Toasty.success(activity,"取消收藏成功").show();
-                                }
-                                notifyItemChanged(helper.getAdapterPosition());
-                            }
-                        });
+                }
+            });
 
-                    }
-                });
-
-                return true;
-            }
+            return true;
         });
 
         //跳转页面
-        helper.getView(R.id.content_container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (UserPreference.queryValueByKey(UserPreference.FIRST_INTRO_MAIN_FEED_ITEM, "0").equals("0")){
-                    initTapView(helper.getView(R.id.operations));
+        helper.getView(R.id.content_container).setOnClickListener(view -> {
+            if (UserPreference.queryValueByKey(UserPreference.FIRST_INTRO_MAIN_FEED_ITEM, "0").equals("0")){
+                initTapView(helper.getView(R.id.operations));
+            }else {
+                ArrayList<Integer> list = new ArrayList<>();
+                for (FeedItem feedItem: feedItemList){
+                    list.add(feedItem.getId());
+                }
+                //如果当前正在请求数据，则来源变成ORIGIN_SEARCH，否则使用ORIGIN_MAIN，用于更新首页已读样式不同
+                if (isRequesting){
+                    PostDetailActivity.activityStart(activity,helper.getAdapterPosition(),feedItemList,PostDetailActivity.ORIGIN_SEARCH);
                 }else {
-                    ArrayList<Integer> list = new ArrayList<>();
-                    for (FeedItem feedItem: feedItemList){
-                        list.add(feedItem.getId());
-                    }
-                    //如果当前正在请求数据，则来源变成ORIGIN_SEARCH，否则使用ORIGIN_MAIN，用于更新首页已读样式不同
-                    if (isRequesting){
-                        PostDetailActivity.activityStart(activity,helper.getAdapterPosition(),feedItemList,PostDetailActivity.ORIGIN_SEARCH);
-                    }else {
-                        PostDetailActivity.activityStart(activity,helper.getAdapterPosition(),feedItemList,PostDetailActivity.ORIGIN_MAIN);
-                    }
+                    PostDetailActivity.activityStart(activity,helper.getAdapterPosition(),feedItemList,PostDetailActivity.ORIGIN_MAIN);
                 }
             }
         });
 
-        helper.getView(R.id.operations).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        helper.getView(R.id.operations).setOnClickListener(view -> {
 
-                String[] list = new String[]{"将以上部分标记为已读","将当前文章标记已（未）读", "将以下部分标记为已读"};
+            String[] list = new String[]{"将以上部分标记为已读","将当前文章标记已（未）读", "将以下部分标记为已读"};
 
-                if (item.isRead()){
-                    list[1] = "将当前文章标记未读";
-                }else {
-                    list[1] = "将当前文章标记已读";
-                }
-                new XPopup.Builder(activity)
-                        .atView(helper.getView(R.id.operations))  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                        .hasShadowBg(false)
-                        .asAttachList(list,
-                                new int[]{},
-                                new OnSelectListener() {
-                                    @Override
-                                    public void onSelect(int position, String text) {
-                                        if (position == 0){
-                                            markReadOfTop(helper,item);
-                                        }else if (position == 2){
-                                            markReadOfBottom(helper,item);
-                                        }else if (position == 1){
-                                            //当前项目标记已读/未读
-                                            item.setRead(!item.isRead());
-                                            item.saveAsync().listen(new SaveCallback() {
-                                                @Override
-                                                public void onFinish(boolean success) {
-                                                    notifyItemChanged(helper.getAdapterPosition());
-                                                    //修改首页未读数目相关界面
-                                                    EventBus.getDefault().post(new EventMessage(EventMessage.MAIN_READ_NUM_EDIT));
-                                                }
-                                            });
-                                        }
-                                    }
-                                })
-                        .show();
+            if (item.isRead()){
+                list[1] = "将当前文章标记未读";
+            }else {
+                list[1] = "将当前文章标记已读";
             }
+            new XPopup.Builder(activity)
+                    .atView(helper.getView(R.id.operations))  // 依附于所点击的View，内部会自动判断在上方或者下方显示
+                    .hasShadowBg(false)
+                    .asAttachList(list,
+                            new int[]{},
+                            (position, text) -> {
+                                if (position == 0){
+                                    markReadOfTop(helper,item);
+                                }else if (position == 2){
+                                    markReadOfBottom(helper,item);
+                                }else if (position == 1){
+                                    //当前项目标记已读/未读
+                                    item.setRead(!item.isRead());
+                                    item.saveAsync().listen(success -> {
+                                        notifyItemChanged(helper.getAdapterPosition());
+                                        //修改首页未读数目相关界面
+                                        EventBus.getDefault().post(new EventMessage(EventMessage.MAIN_READ_NUM_EDIT));
+                                    });
+                                }
+                            })
+                    .show();
         });
     }
 

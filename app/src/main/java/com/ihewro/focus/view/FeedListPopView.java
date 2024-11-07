@@ -3,15 +3,16 @@ package com.ihewro.focus.view;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.ALog;
 import com.ihewro.focus.GlobalConfig;
@@ -125,7 +126,7 @@ public class FeedListPopView extends BottomPopupView {
                 @Override
                 public void onClick(View view) {
                     //打开帮助页面。是一个网页
-                    int accentColor = ContextCompat.getColor(getContext(), R.color.accent);
+                    int accentColor = ContextCompat.getColor(getContext(), com.mikepenz.materialize.R.color.accent);
                     HelpDialog.create(false, accentColor, help.getContent()).show(fragmentManager, "changelog");
                 }
             });

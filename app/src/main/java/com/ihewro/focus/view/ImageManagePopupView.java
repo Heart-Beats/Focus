@@ -3,8 +3,9 @@ package com.ihewro.focus.view;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.View;
+
+import androidx.annotation.NonNull;
 
 import com.ihewro.focus.bean.Help;
 import com.ihewro.focus.bean.Operation;

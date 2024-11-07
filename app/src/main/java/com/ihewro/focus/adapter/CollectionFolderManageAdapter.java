@@ -1,22 +1,16 @@
 package com.ihewro.focus.adapter;
 
 import android.app.Activity;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
 import com.chad.library.adapter.base.BaseItemDraggableAdapter;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
-import com.chad.library.adapter.base.callback.ItemDragAndSwipeCallback;
 import com.ihewro.focus.R;
-import com.ihewro.focus.activity.MainActivity;
 import com.ihewro.focus.bean.CollectionFolder;
-import com.ihewro.focus.bean.Feed;
 import com.ihewro.focus.bean.Help;
 import com.ihewro.focus.view.CollectionFolderOperationPopupView;
-import com.ihewro.focus.view.FeedFolderOperationPopupView;
 import com.lxj.xpopup.XPopup;
-import com.mikepenz.materialdrawer.model.ExpandableBadgeDrawerItem;
 
 import java.util.List;
 
@@ -44,7 +38,7 @@ public class CollectionFolderManageAdapter extends BaseItemDraggableAdapter<Coll
 
     @Override
     protected void convert(BaseViewHolder helper, CollectionFolder item) {
-        helper.setText(R.id.title,item.getName());
+        helper.setText(R.id.title, item.name);
 
 
     }
@@ -57,7 +51,7 @@ public class CollectionFolderManageAdapter extends BaseItemDraggableAdapter<Coll
 
                 //弹窗操作
                 new XPopup.Builder(activity)
-                        .asCustom(new CollectionFolderOperationPopupView(activity,data.get(position).getId() ,data.get(position).getName(), "", new Help(false)))
+                        .asCustom(new CollectionFolderOperationPopupView(activity, data.get(position).id, data.get(position).name, "", new Help(false)))
                         .show();
                 return true;
             }

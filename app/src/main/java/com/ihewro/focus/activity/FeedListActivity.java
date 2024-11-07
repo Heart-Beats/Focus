@@ -4,14 +4,14 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.blankj.ALog;
+import com.google.android.material.appbar.AppBarLayout;
 import com.ihewro.focus.GlobalConfig;
 import com.ihewro.focus.R;
 import com.ihewro.focus.adapter.FeedListAdapter;
@@ -21,8 +21,6 @@ import com.ihewro.focus.http.RetrofitManager;
 import com.ihewro.focus.util.Constants;
 import com.ihewro.focus.util.UIUtil;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
-import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +118,7 @@ public class FeedListActivity extends BackActivity {
             @SuppressLint("CheckResult")
             @Override
             public void onFailure(Call<List<Feed>> call, Throwable t) {
-                Toasty.error(UIUtil.getContext(),"请求失败2" + t.toString(), Toast.LENGTH_SHORT).show();
+                Toasty.error(UIUtil.getContext(),"请求失败2" + t, Toast.LENGTH_SHORT).show();
                 refreshLayout.finishRefresh(false);
             }
         });
@@ -129,12 +127,7 @@ public class FeedListActivity extends BackActivity {
 
 
     public void bindListener(){
-        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
-            @Override
-            public void onRefresh(@NonNull RefreshLayout refreshLayout) {
-                requestData();
-            }
-        });
+        refreshLayout.setOnRefreshListener(refreshLayout -> requestData());
     }
 
 }

@@ -1,37 +1,19 @@
 package com.ihewro.focus.adapter;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.text.InputType;
 import android.view.View;
 
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.blankj.ALog;
+import androidx.annotation.Nullable;
+
 import com.chad.library.adapter.base.BaseItemDraggableAdapter;
-import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.ihewro.focus.R;
-import com.ihewro.focus.activity.MainActivity;
-import com.ihewro.focus.bean.EventMessage;
 import com.ihewro.focus.bean.Feed;
-import com.ihewro.focus.bean.FeedFolder;
-import com.ihewro.focus.bean.FeedItem;
 import com.ihewro.focus.bean.Help;
-import com.ihewro.focus.callback.DialogCallback;
-import com.ihewro.focus.task.ShowFeedFolderListDialogTask;
 import com.ihewro.focus.view.FeedOperationPopupView;
 import com.lxj.xpopup.XPopup;
-import com.nostra13.universalimageloader.utils.L;
 
-import org.greenrobot.eventbus.EventBus;
-import org.litepal.LitePal;
-
-import java.util.ArrayList;
 import java.util.List;
-
-import es.dmoral.toasty.Toasty;
 
 /**
  * <pre>

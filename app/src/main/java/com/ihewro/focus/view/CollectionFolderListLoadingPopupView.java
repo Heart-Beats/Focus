@@ -2,20 +2,19 @@ package com.ihewro.focus.view;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.ihewro.focus.R;
 import com.ihewro.focus.adapter.CollectionFolderListAdapter;
 import com.ihewro.focus.bean.Collection;
 import com.ihewro.focus.bean.CollectionAndFolderRelation;
 import com.ihewro.focus.bean.CollectionFolder;
-import com.ihewro.focus.callback.OperationCallback;
 import com.ihewro.focus.callback.UICallback;
 import com.ihewro.focus.util.UIUtil;
 import com.lxj.xpopup.XPopup;
@@ -24,7 +23,6 @@ import com.lxj.xpopup.core.BottomPopupView;
 import com.lxj.xpopup.util.XPopupUtils;
 
 import org.litepal.LitePal;
-import org.litepal.exceptions.LitePalSupportException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -165,13 +163,13 @@ public class CollectionFolderListLoadingPopupView extends BottomPopupView {
 
 
     protected int getMaxHeight() {
-        return (int) (XPopupUtils.getWindowHeight(getContext())*.85f);
+        return (int) (XPopupUtils.getScreenHeight(getContext())*.85f);
     }
 
 
     @Override
     public int getMinimumHeight() {
-        return (int) (XPopupUtils.getWindowHeight(getContext())*.65f);
+        return (int) (XPopupUtils.getScreenHeight(getContext())*.65f);
     }
 
 

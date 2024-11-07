@@ -1,7 +1,6 @@
 package com.ihewro.focus.fragemnt.setting;
 
 import android.os.Bundle;
-import android.support.v7.preference.PreferenceFragmentCompat;
 
 import com.ihewro.focus.fragemnt.BasePreferenceFragmentCompat;
 

@@ -11,7 +11,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.SystemClock;
-import android.support.v4.app.NotificationCompat;
+
+import androidx.core.app.NotificationCompat;
 
 import com.blankj.ALog;
 import com.ihewro.focus.GlobalConfig;
@@ -27,9 +28,7 @@ import com.ihewro.focus.util.UIUtil;
 
 import org.litepal.LitePal;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

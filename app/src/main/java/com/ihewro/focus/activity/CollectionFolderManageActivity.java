@@ -3,25 +3,21 @@ package com.ihewro.focus.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.blankj.ALog;
 import com.chad.library.adapter.base.callback.ItemDragAndSwipeCallback;
 import com.chad.library.adapter.base.listener.OnItemDragListener;
 import com.ihewro.focus.R;
-import com.ihewro.focus.adapter.CollectionFolderListAdapter;
 import com.ihewro.focus.adapter.CollectionFolderManageAdapter;
-import com.ihewro.focus.adapter.FeedListManageAdapter;
 import com.ihewro.focus.bean.CollectionFolder;
 import com.ihewro.focus.bean.EventMessage;
-import com.ihewro.focus.bean.Feed;
-import com.ihewro.focus.bean.FeedItem;
 import com.ihewro.focus.callback.OperationCallback;
 
 import org.greenrobot.eventbus.EventBus;
@@ -96,12 +92,12 @@ public class CollectionFolderManageActivity extends BackActivity {
                 ALog.d("结束" + pos);
                 end = pos;//结果的位置
                 if (end!=0 && end!=list.size()-1){
-                    list.get(end).setOrderValue((list.get(end-1).getOrderValue() + list.get(end+1).getOrderValue())*1.0/2);
+                    list.get(end).orderValue = (list.get(end - 1).orderValue + list.get(end + 1).orderValue)*1.0/2;
                 }else {
                     if (end == 0){
-                        list.get(end).setOrderValue(list.get(1).getOrderValue()*1.0/2);
+                        list.get(end).orderValue = list.get(1).orderValue *1.0/2;
                     }else {
-                        list.get(end).setOrderValue(list.get(end -1).getOrderValue() + 1);
+                        list.get(end).orderValue = list.get(end - 1).orderValue + 1;
                     }
                 }
                 list.get(end).save();//保存到数据库

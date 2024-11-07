@@ -3,7 +3,8 @@ package com.ihewro.focus.task;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.support.v4.app.Fragment;
+
+import androidx.fragment.app.Fragment;
 
 import com.ihewro.focus.bean.CollectionFolder;
 import com.ihewro.focus.fragemnt.CollectionListFragment;
@@ -47,8 +48,8 @@ public class CollectionTabLayoutTask extends AsyncTask<Void,Void,Void> {
 
 
         for (CollectionFolder collectionFolder : list) {
-            pageTitleList.add(collectionFolder.getName());
-             CollectionListFragment fragment = CollectionListFragment.newInstance(collectionFolder.getId(), activity);
+            pageTitleList.add(collectionFolder.name);
+             CollectionListFragment fragment = CollectionListFragment.newInstance(collectionFolder.id, activity);
             fragmentList.add(fragment);
         }
 

@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -24,6 +23,8 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.widget.Toolbar;
 
 import com.blankj.ALog;
 import com.google.common.io.ByteStreams;
@@ -160,7 +161,7 @@ public class WebViewActivity extends BackActivity {
                 .setWebViewClient(mWebViewClient)
                 .setWebLayout(webLayout)
                 .addJavascriptInterface("imageListener",new MJavascriptInterface(WebViewActivity.this,imageUrls,webView))
-                .setMainFrameErrorView(R.layout.agentweb_error_page, -1)
+                .setMainFrameErrorView(com.just.agentweb.R.layout.agentweb_error_page, -1)
                 .setSecurityType(AgentWeb.SecurityType.STRICT_CHECK)
                 .setOpenOtherPageWays(DefaultWebClient.OpenOtherPageWays.ASK)//打开其他应用时，弹窗咨询用户是否前往其他应用
                 .interceptUnkownUrl() //拦截找不到相关页面的Scheme

@@ -2,22 +2,19 @@ package com.ihewro.focus.view;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.ihewro.focus.R;
 import com.ihewro.focus.adapter.CollectionFolderListAdapter;
 import com.ihewro.focus.bean.Collection;
 import com.ihewro.focus.bean.CollectionAndFolderRelation;
 import com.ihewro.focus.bean.CollectionFolder;
-import com.ihewro.focus.callback.OperationCallback;
 import com.ihewro.focus.callback.UICallback;
 import com.ihewro.focus.util.UIUtil;
 import com.lxj.xpopup.core.BasePopupView;
@@ -29,8 +26,6 @@ import org.litepal.exceptions.LitePalSupportException;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import es.dmoral.toasty.Toasty;
 
 /**
  * <pre>
@@ -97,81 +92,58 @@ public class CollectionFolderListPopupView extends BottomPopupView {
     }
 
     private void initListener() {
-        actionClose.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        actionClose.setOnClickListener(v -> dismiss());
 
-        collect.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //将该内容添加到当前列表选择的文件夹中
-                try {
-                    collection.save();
+        collect.setOnClickListener(v -> {
+            //将该内容添加到当前列表选择的文件夹中
+            try {
+                collection.save();
 //                    Toasty.success(getContext(),"第一次收藏该内容").show();
-                }catch (LitePalSupportException e){
+            }catch (LitePalSupportException e){
 //                    Toasty.info(getContext(),"已存在同样内容").show();
-                }
+            }
 
-                //TODO:保存收藏
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //已经存在的关联
+            //TODO:保存收藏
+            new Thread(() -> {
+                //已经存在的关联
 //                        List<CollectionAndFolderRelation> list = LitePal.where("collectionid = ?", String.valueOf(collection.getId())).find(CollectionAndFolderRelation.class);
 
-                        //先删掉旧的关联，再新建新的关联
-                        LitePal.deleteAll(CollectionAndFolderRelation.class,"collectionid = ?", String.valueOf(collection.getId()));
+                //先删掉旧的关联，再新建新的关联
+                LitePal.deleteAll(CollectionAndFolderRelation.class,"collectionid = ?", String.valueOf(collection.getId()));
 
-                        final List<Integer> folderIds = adapter.getSelectFolderIds();
-                        for (int i = 0;i<folderIds.size();i++){
-                            new CollectionAndFolderRelation(collection.getId(),folderIds.get(i)).save();
-                        }
-
-
-
-                        UIUtil.runOnUiThread((Activity) getContext(), new Runnable() {
-                            @Override
-                            public void run() {
-
-                                //如果size = 0说明取消收藏了，否则说明仍然是收藏
-                                uiCallback.doUIWithIds(folderIds);
-
-
-                                if (folderIds.size()>0){
-                                    uiCallback.doUIWithFlag(true);
-                                }else {
-                                    uiCallback.doUIWithFlag(false);
-                                }
-                            }
-                        });
-
-                    }
-                }).start();
-
-                dismiss();
-            }
-        });
+                final List<Integer> folderIds = adapter.getSelectFolderIds();
+                for (int i = 0;i<folderIds.size();i++){
+                    new CollectionAndFolderRelation(collection.getId(),folderIds.get(i)).save();
+                }
 
 
 
-        actionAdd.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
+                UIUtil.runOnUiThread((Activity) getContext(), () -> {
 
-                CollectionFolder.addNewFolder(getContext(), new OperationCallback() {
-                    @Override
-                    public void run(Object o) {
-                        collectionFolderList.add((CollectionFolder) o);
-                        if (adapter!=null){
-                            adapter.notifyItemInserted(collectionFolderList.size());
-                        }
+                    //如果size = 0说明取消收藏了，否则说明仍然是收藏
+                    uiCallback.doUIWithIds(folderIds);
+
+
+                    if (folderIds.size()>0){
+                        uiCallback.doUIWithFlag(true);
+                    }else {
+                        uiCallback.doUIWithFlag(false);
                     }
                 });
-            }
+
+            }).start();
+
+            dismiss();
         });
+
+
+
+        actionAdd.setOnClickListener(view -> CollectionFolder.addNewFolder(getContext(), o -> {
+            collectionFolderList.add((CollectionFolder) o);
+            if (adapter!=null){
+                adapter.notifyItemInserted(collectionFolderList.size());
+            }
+        }));
 
 
 
@@ -212,13 +184,13 @@ public class CollectionFolderListPopupView extends BottomPopupView {
 
 
     protected int getMaxHeight() {
-        return (int) (XPopupUtils.getWindowHeight(getContext())*.85f);
+        return (int) (XPopupUtils.getScreenHeight(getContext())*.85f);
     }
 
 
     @Override
     public int getMinimumHeight() {
-        return (int) (XPopupUtils.getWindowHeight(getContext())*.65f);
+        return (int) (XPopupUtils.getScreenHeight(getContext())*.65f);
     }
 
 

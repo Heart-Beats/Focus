@@ -1,22 +1,14 @@
 package com.ihewro.focus.view;
 
 import android.content.Context;
-import android.support.annotation.ColorInt;
-import android.support.annotation.IdRes;
 import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
-import com.chad.library.adapter.base.BaseViewHolder;
+import androidx.annotation.ColorInt;
+import androidx.annotation.IdRes;
+
 import com.ihewro.focus.R;
 import com.ihewro.focus.bean.FeedItem;
-import com.ihewro.focus.bean.PostSetting;
-import com.ihewro.focus.util.DateUtil;
-import com.ihewro.focus.util.PostUtil;
-
-import skin.support.utils.SkinPreference;
 
 /**
  * <pre>

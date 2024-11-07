@@ -4,18 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.widget.NestedScrollView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ScrollView;
-import android.widget.Toast;
 
-import com.blankj.ALog;
-import com.ihewro.focus.activity.PostDetailActivity;
-import com.ihewro.focus.util.UIUtil;
+import androidx.core.widget.NestedScrollView;
 
 /**
  * <pre>

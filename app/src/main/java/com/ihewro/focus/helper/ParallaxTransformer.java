@@ -2,9 +2,10 @@ package com.ihewro.focus.helper;
 
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.viewpager.widget.ViewPager;
 
 import com.blankj.ALog;
 import com.ihewro.focus.adapter.PostDetailListPagerAdapter;

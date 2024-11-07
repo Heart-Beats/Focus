@@ -1,18 +1,14 @@
 package com.ihewro.focus.adapter;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
-import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+
+import androidx.annotation.Nullable;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.ihewro.focus.R;
-import com.ihewro.focus.activity.PostDetailActivity;
 import com.ihewro.focus.bean.Background;
-import com.ihewro.focus.bean.FeedItem;
 import com.ihewro.focus.bean.UserPreference;
 
 import java.util.List;

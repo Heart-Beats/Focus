@@ -6,11 +6,10 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.RemoteViews;
+
+import androidx.core.app.NotificationCompat;
 
 import com.ihewro.focus.R;
 import com.ihewro.focus.activity.MainActivity;
@@ -32,9 +31,9 @@ public class NotificationUtil {
     public static void showNotification(Context context) {
         Notification notification = new NotificationCompat.Builder(context)
                 /*设置通知左边的大图标**/
-                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher))
+                .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_focus_launcher))
                 /*设置通知右边的小图标**/
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.mipmap.ic_focus_launcher)
                 /*通知首次出现在通知栏，带上升动画效果的**/
                 .setTicker("通知来了")
                 /*设置通知的标题**/
@@ -67,7 +66,7 @@ public class NotificationUtil {
         //进度条通知
         final NotificationCompat.Builder builderProgress = new NotificationCompat.Builder(context);
         builderProgress.setContentTitle("下载中");
-        builderProgress.setSmallIcon(R.mipmap.ic_launcher);
+        builderProgress.setSmallIcon( R.mipmap.ic_focus_launcher);
         builderProgress.setTicker("进度条通知");
         builderProgress.setProgress(100, 0, false);
         final Notification notification = builderProgress.build();
@@ -114,8 +113,8 @@ public class NotificationUtil {
         Intent mIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://blog.csdn.net/itachi85/"));
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, mIntent, 0);
         builder.setContentIntent(pendingIntent);
-        builder.setSmallIcon(R.mipmap.ic_launcher);
-        builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher));
+        builder.setSmallIcon( R.mipmap.ic_focus_launcher);
+        builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(),  R.mipmap.ic_focus_launcher));
         builder.setAutoCancel(true);
         builder.setContentTitle("悬挂式通知");
         //设置点击跳转

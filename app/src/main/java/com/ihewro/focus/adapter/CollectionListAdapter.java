@@ -1,8 +1,9 @@
 package com.ihewro.focus.adapter;
 
 import android.app.Activity;
-import android.support.annotation.Nullable;
 import android.view.View;
+
+import androidx.annotation.Nullable;
 
 import com.chad.library.adapter.base.BaseMultiItemQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;

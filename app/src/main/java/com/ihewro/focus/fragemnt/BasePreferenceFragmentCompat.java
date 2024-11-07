@@ -2,17 +2,16 @@ package com.ihewro.focus.fragemnt;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceCategory;
-import android.support.v7.preference.PreferenceFragmentCompat;
-import android.support.v7.preference.PreferenceGroupAdapter;
-import android.support.v7.preference.PreferenceScreen;
-import android.support.v7.preference.PreferenceViewHolder;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.ihewro.focus.R;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceGroupAdapter;
+import androidx.preference.PreferenceScreen;
+import androidx.preference.PreferenceViewHolder;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * <pre>
@@ -35,14 +34,16 @@ public abstract class BasePreferenceFragmentCompat extends PreferenceFragmentCom
                 if (preference instanceof PreferenceCategory)
                     setZeroPaddingToLayoutChildren(holder.itemView);
                 else {
-                    View iconFrame = holder.itemView.findViewById(R.id.icon_frame);
-                    if (iconFrame != null) {
-                        iconFrame.setVisibility(preference.getIcon() == null ? View.GONE : View.VISIBLE);
-                    }
+                    // View iconFrame = holder.itemView.findViewById(com.stephentuso.welcome.R.id.icon_frame);
+                    // if (iconFrame != null) {
+                    //     iconFrame.setVisibility(preference.getIcon() == null ? View.GONE : View.VISIBLE);
+                    // }
                 }
             }
         };
     }
+
+
 
     private void setZeroPaddingToLayoutChildren(View view) {
         if (!(view instanceof ViewGroup))

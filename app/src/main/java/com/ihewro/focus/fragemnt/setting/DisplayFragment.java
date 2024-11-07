@@ -1,7 +1,7 @@
 package com.ihewro.focus.fragemnt.setting;
 
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.SwitchPreferenceCompat;
+import androidx.preference.Preference;
+import androidx.preference.SwitchPreferenceCompat;
 
 import com.ihewro.focus.R;
 import com.ihewro.focus.bean.UserPreference;

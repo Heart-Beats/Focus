@@ -1,8 +1,9 @@
 package com.ihewro.focus.adapter;
 
-import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.CheckBox;
+
+import androidx.annotation.Nullable;
 
 import com.blankj.ALog;
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -36,12 +37,12 @@ public class CollectionFolderListAdapter extends BaseQuickAdapter<CollectionFold
 
     @Override
     protected void convert(final BaseViewHolder helper, CollectionFolder item) {
-        helper.setText(R.id.name,item.getName());
+        helper.setText(R.id.name, item.name);
 //        helper.setText(R.id.info,)
         helper.setGone(R.id.info,false);
 
         //
-        if (selectFolderIds.contains(item.getId())){
+        if (selectFolderIds.contains(item.id)){
             ((CheckBox)(helper.getView(R.id.select))).setChecked(true);
         }else {
             ((CheckBox)(helper.getView(R.id.select))).setChecked(false);
@@ -72,11 +73,11 @@ public class CollectionFolderListAdapter extends BaseQuickAdapter<CollectionFold
         CollectionFolder current = data.get(position);
 
         if (!status){//添加到收藏分类中
-            selectFolderIds.add(current.getId());
+            selectFolderIds.add(current.id);
             ((CheckBox)(view.findViewById(R.id.select))).setChecked(true);
         }else {
             //剔除掉该id的文件夹
-            selectFolderIds.remove((Integer) current.getId());
+            selectFolderIds.remove((Integer) current.id);
             ((CheckBox)(view.findViewById(R.id.select))).setChecked(false);
         }
     }

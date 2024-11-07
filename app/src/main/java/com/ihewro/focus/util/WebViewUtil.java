@@ -5,13 +5,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
-import android.support.customtabs.CustomTabsIntent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+
+import androidx.browser.customtabs.CustomTabsIntent;
 
 import com.blankj.ALog;
 import com.ihewro.focus.bean.PostSetting;

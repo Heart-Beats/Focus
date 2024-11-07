@@ -1,39 +1,24 @@
 package com.ihewro.focus.view;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Patterns;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.ihewro.focus.R;
 import com.ihewro.focus.adapter.OperationListAdapter;
-import com.ihewro.focus.adapter.RequireListAdapter;
-import com.ihewro.focus.bean.EventMessage;
-import com.ihewro.focus.bean.Feed;
-import com.ihewro.focus.bean.FeedRequire;
 import com.ihewro.focus.bean.Help;
 import com.ihewro.focus.bean.Operation;
-import com.ihewro.focus.callback.DialogCallback;
-import com.ihewro.focus.task.ShowFeedFolderListDialogTask;
 import com.ihewro.focus.util.StringUtil;
-import com.ihewro.focus.util.UIUtil;
 import com.lxj.xpopup.core.BottomPopupView;
-
-import org.greenrobot.eventbus.EventBus;
-import org.litepal.exceptions.LitePalSupportException;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import es.dmoral.toasty.Toasty;
 
 /**
  * <pre>

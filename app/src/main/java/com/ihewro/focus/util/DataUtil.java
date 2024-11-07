@@ -5,7 +5,6 @@ import android.database.Cursor;
 import com.google.common.base.Strings;
 import com.ihewro.focus.bean.Collection;
 import com.ihewro.focus.bean.FeedItem;
-import com.nostra13.universalimageloader.core.ImageLoader;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -74,7 +73,7 @@ public class DataUtil {
 
 
     public static String getColumnString(Cursor cursor, String column,String defaultValue){
-        int index = cursor.getColumnIndex(column);
+        int index = cursor.getColumnIndexOrThrow(column);
         if (index == -1){
             return defaultValue;
         }else {
@@ -84,7 +83,7 @@ public class DataUtil {
 
 
     public static int getColumnInt(Cursor cursor, String column,int defaultValue){
-        int index = cursor.getColumnIndex(column);
+        int index = cursor.getColumnIndexOrThrow(column);
         if (index == -1){
             return defaultValue;
         }else {
@@ -93,7 +92,7 @@ public class DataUtil {
     }
 
     public static long getColumnLong(Cursor cursor, String column,long defaultValue){
-        int index = cursor.getColumnIndex(column);
+        int index = cursor.getColumnIndexOrThrow(column);
         if (index == -1){
             return defaultValue;
         }else {

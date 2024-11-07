@@ -1,11 +1,12 @@
 package com.ihewro.focus.view;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.webkit.WebView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.ihewro.focus.R;
 import com.just.agentweb.IWebLayout;

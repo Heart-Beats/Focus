@@ -1,18 +1,15 @@
 package com.ihewro.focus.activity;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.os.Build;
-import android.support.annotation.ColorInt;
-import android.support.annotation.IntRange;
+import android.os.Bundle;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.ihewro.focus.R;
 import com.ihewro.focus.util.StatusBarUtil;
-import com.saber.chentianslideback.SlideBackActivity;
+import com.parfoismeng.slidebacklib.SlideBackKt;
 
 import skin.support.utils.SkinPreference;
 
@@ -26,18 +23,17 @@ import skin.support.utils.SkinPreference;
  * </pre>
  */
 @SuppressLint("Registered")
-public class BackActivity extends SlideBackActivity {
+public class BackActivity extends AppCompatActivity {
 
 
     @Override
     public void setContentView(int layoutResID) {
         if(SkinPreference.getInstance().getSkinName().equals("night")){
-            setTheme(R.style.AppTheme_Dark);
+            setTheme(R.style.AppTheme_DayNight);
         }else {
-            setTheme(R.style.AppTheme);
+            setTheme(R.style.AppTheme_DayNight);
         }
         super.setContentView(layoutResID);
-        setSlideBackDirection(SlideBackActivity.LEFT);
 
         if(!SkinPreference.getInstance().getSkinName().equals("night")){
 //            StatusBarUtil.setLightMode(this);
@@ -62,8 +58,20 @@ public class BackActivity extends SlideBackActivity {
     }
 
     @Override
-    protected void slideBackSuccess() {
-        onBackPressed();//或者其他
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SlideBackKt.registerSlideBack(this, true, () -> {
+            getOnBackPressedDispatcher().onBackPressed();
+            return null;
+        });
+
+
     }
 
+    @Override
+    protected void onDestroy() {
+        // 解绑
+        SlideBackKt.unregisterSlideBack(this);
+        super.onDestroy();
+    }
 }

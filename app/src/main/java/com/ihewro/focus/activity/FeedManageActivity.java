@@ -3,16 +3,16 @@ package com.ihewro.focus.activity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.folderselector.FileChooserDialog;
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.ihewro.focus.R;
 import com.ihewro.focus.bean.EventMessage;
 import com.ihewro.focus.bean.Feed;
@@ -29,7 +29,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -43,7 +42,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 /**
  * 分类管理页面，对分类、分类文件夹增加、删除、修改、排序
  */
-public class FeedManageActivity extends BackActivity implements EasyPermissions.PermissionCallbacks,FileChooserDialog.FileCallback {
+public class FeedManageActivity extends BackActivity implements EasyPermissions.PermissionCallbacks {
 
 
     @BindView(R.id.toolbar)
@@ -192,6 +191,7 @@ public class FeedManageActivity extends BackActivity implements EasyPermissions.
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         if (currentFragment == null || currentFragment == feedFolderListManageFragment){
             finish();
         }else if(currentFragment == feedListManageFragment){
@@ -235,17 +235,6 @@ public class FeedManageActivity extends BackActivity implements EasyPermissions.
             Toast.makeText(this, "从设置界面返回", Toast.LENGTH_SHORT)
                     .show();
         }
-    }
-
-    @Override
-    public void onFileSelection(@NonNull FileChooserDialog dialog, @NonNull File file) {
-        //选择了某个文件
-        opmlReadHelper.add(file.getAbsolutePath());
-    }
-
-    @Override
-    public void onFileChooserDismissed(@NonNull FileChooserDialog dialog) {
-
     }
 
     @Override

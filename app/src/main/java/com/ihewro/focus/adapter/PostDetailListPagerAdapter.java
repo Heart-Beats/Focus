@@ -1,19 +1,16 @@
 package com.ihewro.focus.adapter;
 
 import android.app.Activity;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.blankj.ALog;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+
 import com.ihewro.focus.bean.FeedItem;
 import com.ihewro.focus.fragemnt.PostDetailFragment;
-import com.ihewro.focus.view.PostDetailView;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,11 +1,10 @@
 package com.ihewro.focus.adapter;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.ihewro.focus.R;
-import com.ihewro.focus.bean.Feed;
 import com.ihewro.focus.bean.FeedItem;
 
 import java.util.List;

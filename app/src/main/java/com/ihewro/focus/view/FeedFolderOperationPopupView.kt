@@ -1,235 +1,200 @@
-package com.ihewro.focus.view;
+package com.ihewro.focus.view
 
-import android.content.ContentValues;
-import android.content.Context;
-import android.support.annotation.NonNull;
-import android.text.InputType;
-import android.view.View;
-
-import com.afollestad.materialdialogs.DialogAction;
-import com.afollestad.materialdialogs.MaterialDialog;
-import com.ihewro.focus.GlobalConfig;
-import com.ihewro.focus.R;
-import com.ihewro.focus.bean.EventMessage;
-import com.ihewro.focus.bean.Feed;
-import com.ihewro.focus.bean.FeedFolder;
-import com.ihewro.focus.bean.FeedItem;
-import com.ihewro.focus.bean.Help;
-import com.ihewro.focus.bean.Operation;
-import com.ihewro.focus.bean.UserPreference;
-import com.ihewro.focus.callback.OperationCallback;
-
-import org.greenrobot.eventbus.EventBus;
-import org.litepal.LitePal;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import es.dmoral.toasty.Toasty;
+import android.annotation.SuppressLint
+import android.content.ContentValues
+import android.content.Context
+import android.text.InputType
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.input.input
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
+import com.ihewro.focus.GlobalConfig
+import com.ihewro.focus.R
+import com.ihewro.focus.bean.EventMessage
+import com.ihewro.focus.bean.Feed
+import com.ihewro.focus.bean.FeedFolder
+import com.ihewro.focus.bean.FeedItem
+import com.ihewro.focus.bean.Help
+import com.ihewro.focus.bean.Operation
+import es.dmoral.toasty.Toasty
+import org.greenrobot.eventbus.EventBus
+import org.litepal.LitePal
 
 /**
  * <pre>
- *     author : hewro
- *     e-mail : ihewro@163.com
- *     time   : 2019/05/13
- *     desc   :
- *     version: 1.0
- * </pre>
+ * author : hewro
+ * e-mail : ihewro@163.com
+ * time   : 2019/05/13
+ * desc   :
+ * version: 1.0
+</pre> *
  */
-public class FeedFolderOperationPopupView extends OperationBottomPopupView {
+class FeedFolderOperationPopupView(context: Context, id: Long, title: String?, subtitle: String?, help: Help?) :
+	OperationBottomPopupView(context, null, title, subtitle, help) {
+	private var feedFolder: FeedFolder? = null
 
-    private FeedFolder feedFolder;
+	init {
+		this.operationList = getFeedFolderOperationList(id)
+	}
 
-    public FeedFolderOperationPopupView(@NonNull Context context, long id, String title, String subtitle, Help help) {
-        super(context, null, title, subtitle, help);
-        this.setOperationList(getFeedFolderOperationList(id));
-    }
+	@SuppressLint("CheckResult")
+	private fun getFeedFolderOperationList(id: Long): List<Operation> {
+		feedFolder = LitePal.find(FeedFolder::class.java, id)
+		val operations: MutableList<Operation> = ArrayList()
+		operations.add(
+			Operation("重命名文件夹", "", resources.getDrawable(R.drawable.ic_rate_review_black_24dp), feedFolder) { o -> // 对文件夹进行重命名
+				val finalO: FeedFolder = o as FeedFolder
 
-    private List<Operation> getFeedFolderOperationList(final long id){
-        feedFolder = LitePal.find(FeedFolder.class,id);
-        List<Operation> operations = new ArrayList<>();
-        operations.add(new Operation("重命名文件夹","", getResources().getDrawable(R.drawable.ic_rate_review_black_24dp),feedFolder, new OperationCallback() {
-            @Override
-            public void run(Object o) {
-                //对文件夹进行重命名
-                final FeedFolder finalO = (FeedFolder) o;
-                new MaterialDialog.Builder(getContext())
-                        .title("修改文件夹名称")
-                        .content("输入新的名称：")
-                        .inputType(InputType.TYPE_CLASS_TEXT)
-                        .input("", "", new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(MaterialDialog dialog, CharSequence input) {
-                                String name = dialog.getInputEditText().getText().toString().trim();
-                                if (name.equals("")){
-                                    Toasty.info(getContext(),"请勿填写空名字哦😯").show();
-                                }else {
-                                    finalO.setName(name);
-                                    finalO.save();
-                                }
-                                Toasty.success(getContext(),"修改成功").show();
-                                EventBus.getDefault().post(new EventMessage(EventMessage.EDIT_FEED_FOLDER_NAME));
-                                dismiss();
-                            }
-                        }).show();
+				MaterialDialog(context).show {
+					title(text = "修改文件夹名称")
+					message(text = "输入新的名称：")
+					input(inputType = InputType.TYPE_CLASS_TEXT) { _, inputText ->
+						val name = inputText.toString().trim()
+						if (name == "") {
+							Toasty.info(context, "请勿填写空名字哦😯").show()
+						} else {
+							finalO.name = name
+							finalO.save()
+						}
+						Toasty.success(context, "修改成功").show()
+						EventBus.getDefault().post(EventMessage(EventMessage.EDIT_FEED_FOLDER_NAME))
+						dismiss()
+					}
+				}
+			}
+		)
 
-            }
-        }));
+		operations.add(
+			Operation("退订文件夹", "", resources.getDrawable(R.drawable.ic_exit_to_app_black_24dp), feedFolder) { o ->
+				MaterialDialog(context).show {
+					title(text = "操作通知")
+					message(text = "确定退订该文件夹吗？确定会退订文件夹下所有订阅")
+					positiveButton(text = "确定") {
+						val feedFolder: FeedFolder = (o as FeedFolder)
 
-        operations.add(new Operation("退订文件夹","", getResources().getDrawable(R.drawable.ic_exit_to_app_black_24dp),feedFolder, new OperationCallback() {
-            @Override
-            public void run(final Object o) {
-                new MaterialDialog.Builder(getContext())
-                        .title("操作通知")
-                        .content("确定退订该文件夹吗？确定会退订文件夹下所有订阅")
-                        .positiveText("确定")
-                        .negativeText("取消")
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                FeedFolder feedFolder = ((FeedFolder)o);
-                                //退订文件夹的内容
+						// 退订文件夹的内容
 
-                                //1.删除该文件夹下的所有feedITEN
-                                List<Feed> temp = LitePal.where("feedfolderid = ?", String.valueOf(id)).find(Feed.class);
-                                for (int i = 0;i<temp.size();i++){
-                                    //删除没有收藏的
-                                    LitePal.deleteAll(FeedItem.class,"feedid = ? and favorite = ?", String.valueOf(temp.get(i).getId()),"0");
-                                    //2.删除文件夹下的所有feed
-                                    temp.get(i).delete();
-                                }
+						// 1.删除该文件夹下的所有feedItem
+						val temp: List<Feed> = LitePal.where("feedfolderid = ?", id.toString()).find(Feed::class.java)
+						for (i in temp.indices) {
+							// 删除没有收藏的
+							LitePal.deleteAll(
+								FeedItem::class.java,
+								"feedid = ? and favorite = ?",
+								temp[i].id.toString(),
+								"0"
+							)
+							// 2.删除文件夹下的所有feed
+							temp[i].delete()
+						}
 
-                                //3.删除文件夹
-                                LitePal.delete(FeedFolder.class,id);
-                                Toasty.success(getContext(),"退订成功").show();
-                                EventBus.getDefault().post(new EventMessage(EventMessage.DELETE_FEED_FOLDER, (int) id));
-                                dismiss();
+						// 3.删除文件夹
+						LitePal.delete(FeedFolder::class.java, id)
+						Toasty.success(context, "退订成功").show()
+						EventBus.getDefault().post(EventMessage(EventMessage.DELETE_FEED_FOLDER, id.toInt()))
+						dismiss()
+					}
+					negativeButton(text = "取消")
+				}
+			}
+		)
 
-                            }
-                        })
-                        .show();
-
-            }
-        }));
-
-        operations.add(new Operation("标记全部已读", "",getResources().getDrawable(R.drawable.ic_radio_button_checked_black_24dp),feedFolder, new OperationCallback() {
-            @Override
-            public void run(final Object o) {
-                //显示弹窗
-                new MaterialDialog.Builder(getContext())
-                        .title("操作通知")
-                        .content("确定将该订阅下所有文章标记已读吗？")
-                        .positiveText("确定")
-                        .negativeText("取消")
-                        .onPositive(new MaterialDialog.SingleButtonCallback() {
-                            @Override
-                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-
-                                FeedFolder feedFolder = (FeedFolder)o;
-                                //标记全部已读
-                                List<Feed> feedList = LitePal.where("feedfolderid = ?", String.valueOf(feedFolder.getId())).find(Feed.class);
-                                for (Feed feed: feedList){
-                                    ContentValues values = new ContentValues();
-                                    values.put("read", "1");
-                                    LitePal.updateAll(FeedItem.class,values,"feedid = ?", String.valueOf(feed.getId()));
-
-                                }
-                                Toasty.success(getContext(),"标记成功").show();
-                                EventBus.getDefault().post(new EventMessage(EventMessage.MARK_FEED_FOLDER_READ, (int) id));
-                                dismiss();
-                            }
-                        })
-                        .show();
-            }
-        }));
+		operations.add(
+			Operation("标记全部已读", "", resources.getDrawable(R.drawable.ic_radio_button_checked_black_24dp), feedFolder) { o ->
+				// 显示弹窗
+				MaterialDialog(context).show {
+					title(text = "操作通知")
+					message(text = "确定将该订阅下所有文章标记已读吗？")
+					positiveButton(text = "确定") {
+						val feedFolder: FeedFolder = o as FeedFolder
+						// 标记全部已读
+						val feedList: List<Feed> = LitePal.where("feedfolderid = ?", feedFolder.id.toString()).find<Feed>(
+							Feed::class.java
+						)
+						for (feed in feedList) {
+							val values = ContentValues()
+							values.put("read", "1")
+							LitePal.updateAll(FeedItem::class.java, values, "feedid = ?", feed.id.toString())
+						}
+						Toasty.success(context, "标记成功").show()
+						EventBus.getDefault().post(EventMessage(EventMessage.MARK_FEED_FOLDER_READ, id.toInt()))
+						dismiss()
+					}
+					negativeButton(text = "取消")
+				}
+			}
+		)
 
 
-        operations.add(new Operation("设置超时时间","",getResources().getDrawable(R.drawable.ic_timer_black_24dp),feedFolder, new OperationCallback() {
-            @Override
-            public void run(Object o) {
-                final FeedFolder item = (FeedFolder)o;
+		operations.add(
+			Operation("设置超时时间", "", resources.getDrawable(R.drawable.ic_timer_black_24dp), feedFolder) { o ->
+				val item: FeedFolder = o as FeedFolder
 
-                new MaterialDialog.Builder(getContext())
-                        .title("设置超时时间")
-                        .content("单位是秒，与每个订阅的的超时时间取最大值")
-                        .inputType(InputType.TYPE_CLASS_TEXT)
-                        .input(item.getTimeout()+"", item.getTimeout()+"", new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(MaterialDialog dialog, CharSequence input) {
-                                String timeout = dialog.getInputEditText().getText().toString().trim();
-                                if (timeout.equals("")){
-                                    Toasty.info(getContext(),"请勿为空😯").show();
-                                }else {
-                                    item.setTimeout(Integer.parseInt(timeout));
-                                    item.save();
-                                    Toasty.success(getContext(),"设置成功").show();
-                                    EventBus.getDefault().post(new EventMessage(EventMessage.EDIT_FEED_NAME));
-                                    dismiss();
-                                }
-                            }
-                        }).show();
-            }
-        }));
+				MaterialDialog(context).show {
+					title(text = "设置超时时间")
+					message(text = "单位是秒，与每个订阅的的超时时间取最大值：")
+					input(
+						hint = item.timeout.toString(),
+						prefill = item.timeout.toString(),
+						inputType = InputType.TYPE_CLASS_TEXT
+					) { _, inputText ->
+						val timeout = inputText.toString().trim()
+						if (timeout == "") {
+							Toasty.info(context, "请勿为空😯").show()
+						} else {
+							item.timeout = timeout.toInt()
+							item.save()
+							Toasty.success(context, "设置成功").show()
+							EventBus.getDefault().post(EventMessage(EventMessage.EDIT_FEED_NAME))
+							dismiss()
+						}
+					}
+				}
+			}
+		)
 
-/*        operations.add(new Operation("分享该文件夹","",getResources().getDrawable(R.drawable.ic_share_black_24dp_grey),feedFolder, new OperationCallback() {
-            @Override
-            public void run(Object o) {
-                final FeedFolder item = (FeedFolder)o;
+		// operations.add( Operation("分享该文件夹","",getResources().getDrawable(R.drawable.ic_share_black_24dp_grey),feedFolder) { o ->
+		// 	val item: FeedFolder = o as FeedFolder
+		//
+		// 	MaterialDialog(context).show {
+		// 		title(text = "填写分享名称")
+		// 		message(text = "填写一个独一无二的名称吧，彰显个性，方便搜索")
+		// 		input(
+		// 			hint = item.timeout.toString(),
+		// 			prefill = item.timeout.toString(),
+		// 			inputType = InputType.TYPE_CLASS_TEXT
+		// 		) { _, inputText ->
+		// 			val timeout = inputText.toString().trim()
+		// 			if (timeout == "") {
+		// 				Toasty.info(context, "请勿为空😯").show()
+		// 			} else {
+		// 				//上传到服务器
+		//
+		// 				dismiss()
+		// 			}
+		// 		}
+		// 	}
+		// })
 
-                new MaterialDialog.Builder(getContext())
-                        .title("填写分享名称")
-                        .content("填写一个独一无二的名称吧，彰显个性，方便搜索")
-                        .inputType(InputType.TYPE_CLASS_TEXT)
-                        .input(item.getTimeout()+"", item.getTimeout()+"", new MaterialDialog.InputCallback() {
-                            @Override
-                            public void onInput(MaterialDialog dialog, CharSequence input) {
-                                String timeout = dialog.getInputEditText().getText().toString().trim();
-                                if (timeout.equals("")){
-                                    Toasty.info(getContext(),"请勿为空😯").show();
-                                }else {
-                                    //上传到服务器
+		operations.add(
+			Operation("设置rsshub源", "", resources.getDrawable(R.drawable.ic_autorenew_black_24dp_night_grey), feedFolder) { o ->
+				val item: FeedFolder = o as FeedFolder
+				var select: Int = GlobalConfig.feedRssHub.indexOf(item.rsshub)
+				if (select == -1) {
+					select = GlobalConfig.feedRssHub.size - 1 // 跟随主设置
+				}
+				MaterialDialog(context).show {
+					title(text = "源设置")
+					listItemsSingleChoice(items = GlobalConfig.feedRssHub, initialSelection = select) { _, index, _ ->
+						if (index in 0..3) {
+							item.rsshub = GlobalConfig.feedRssHub[index]
+							item.save()
+						}
+					}
+					positiveButton(text = "选择")
+				}
+			}
+		)
 
-
-                                    dismiss();
-                                }
-                            }
-                        }).show();
-            }
-        }));*/
-
-
-        operations.add(new Operation("设置rsshub源","",getResources().getDrawable(R.drawable.ic_autorenew_black_24dp_night_grey),feedFolder, new OperationCallback() {
-            @Override
-            public void run(Object o) {
-                final FeedFolder item = (FeedFolder)o;
-                int select = GlobalConfig.feedRssHub.indexOf(item.getRsshub());
-                if (select == -1){
-                    select = GlobalConfig.feedRssHub.size() -1;//跟随主设置
-                }
-                new MaterialDialog.Builder(getContext())
-                        .title("源设置")
-                        .items(GlobalConfig.feedRssHub)
-                        .itemsCallbackSingleChoice(select, new MaterialDialog.ListCallbackSingleChoice() {
-                            @Override
-                            public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                                if (which>=0 && which<4){
-                                    item.setRsshub(GlobalConfig.feedRssHub.get(which));
-                                    item.save();
-                                    return true;
-                                }
-                                return false;
-                            }
-                        })
-                        .positiveText("选择")
-                        .show();
-
-            }
-        }));
-
-        return  operations;
-    }
-
-
-
+		return operations
+	}
 }
